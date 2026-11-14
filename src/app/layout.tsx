@@ -9,7 +9,6 @@ import { AuthProvider } from '@/components/auth/AuthProvider'
 import { FeedbackNoticeProvider } from '@/components/feedback/FeedbackNoticeProvider'
 import GuestSavePrompt from '@/components/auth/GuestSavePrompt'
 import { themeInitScript } from '@/components/theme/theme'
-import AnnouncementModal from '@/components/modals/AnnouncementModal'
 
 const proximaNovaRegular = localFont({
     src: '../../public/fonts/proximanova_regular.ttf',
@@ -63,6 +62,14 @@ export const metadata: Metadata = {
         'guessing kpop',
         'guessing the kpop idol',
         'kpop guess idol',
+        'kpop guessing app',
+        'guessing app kpop',
+        'guess the kpop app',
+        'guess the kpop idol app',
+        'guess the idol app',
+        'guessing the idol app',
+        'guessing app kpop idol',
+        'guessing kpop idol app'
     ],
     openGraph: {
         title: 'IdolGuessr - K-pop Idol Guessing Game',
@@ -83,7 +90,6 @@ export default function RootLayout({
                 className={`${proximaNovaRegular.className} bg-white text-black antialiased dark:bg-zinc-950 dark:text-zinc-100`}
             >
                 <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-                <AnnouncementModal />
                 <ThemeProvider>
                     <AuthProvider>
                         <FeedbackNoticeProvider>
