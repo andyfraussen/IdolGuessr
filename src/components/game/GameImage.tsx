@@ -18,6 +18,7 @@ interface GameImageProps {
         group_category?: string
         base64_group?: string
         base64_idol?: string
+        image_token?: string
         group_name?: string
         zoom_x?: number | null
         zoom_y?: number | null
@@ -141,6 +142,7 @@ export default function GameImage({
     const hasValidData =
         !dailyImage ||
         gameMode === 'daily' ||
+        Boolean(dailyImage.image_token) ||
         (dailyImage.group_category && dailyImage.base64_group)
 
     const imageSlots: Array<number | 'clear'> = isChallenger
@@ -158,7 +160,8 @@ export default function GameImage({
                       num,
                       gameMode,
                       dailyImage.group_category,
-                      dailyImage.base64_group
+                      dailyImage.base64_group,
+                      dailyImage.image_token
                   )
               )
             : []
@@ -172,7 +175,8 @@ export default function GameImage({
                   'clear',
                   gameMode,
                   dailyImage.group_category,
-                  dailyImage.base64_group
+                  dailyImage.base64_group,
+                  dailyImage.image_token
               )
             : ''
     const zoomScale = getZoomScale(
@@ -292,7 +296,7 @@ export default function GameImage({
                 {gameMode === 'unlimited' && !gameWon && !gameLost && (
                     <>
                         <div className='absolute top-3 left-3 z-10 flex items-center gap-2'>
-                            {maxHints > 0 && dailyImage?.group_name && (
+                            {maxHints > 0 && dailyImage && (
                                 <button
                                     onClick={() => {
                                         const revealedHere =
@@ -334,8 +338,9 @@ export default function GameImage({
                                     }
                                 >
                                     <HintButton />
-                                    {hintUsedOnIdol === dailyImage.img_bucket ||
-                                    groupNameRevealed
+                                    {(hintUsedOnIdol === dailyImage.img_bucket ||
+                                        groupNameRevealed) &&
+                                    dailyImage.group_name
                                         ? dailyImage.group_name
                                         : hintsRemaining <= 0
                                           ? 'HINT (0)'

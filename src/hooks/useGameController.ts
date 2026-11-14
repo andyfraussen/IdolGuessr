@@ -17,6 +17,7 @@ import {
 } from '@/lib/player'
 import {
     getDailyImage,
+    type CurrentDaily,
     type DailyImage as DailyRow,
     getImageUrl,
     trackUnlimitedGame,
@@ -56,15 +57,16 @@ const idolNamesSet = new Set(
     idolNames.map((name: string) => name.toUpperCase())
 )
 
-export function useGameController() {
+export function useGameController(initialDaily?: CurrentDaily | null) {
     const pathname = usePathname()
     const [gameMode, setGameMode] = useState<'daily' | 'unlimited'>('daily')
     const [currentGuess, setCurrentGuess] = useState('')
     const [lastIncorrectGuess, setLastIncorrectGuess] = useState('')
-    const [dailyImage, setDailyImage] = useState<DailyRow | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const [dailyImage, setDailyImage] = useState<DailyRow | null>(initialDaily ?? null)
+    const [isLoading, setIsLoading] = useState(!initialDaily)
     const [isAnimating, setIsAnimating] = useState(false)
-    const [correctAnswer, setCorrectAnswer] = useState('')
+    const [correctAnswer, setCorrectAnswer] = useState(initialDaily?.name?.toUpperCase() ?? '')
+    const seededDailyRef = useRef(false)
     const [showConfetti, setShowConfetti] = useState(false)
     const [showStats, setShowStats] = useState(false)
     const [showHelp, setShowHelp] = useState(false)
@@ -202,6 +204,15 @@ export function useGameController() {
 
     scheduleCountdownAndFlipRef.current = scheduleCountdownAndFlip
 
+    const applyDaily = useCallback((row: CurrentDaily) => {
+        setDailyImage(row)
+        if (row.name) setCorrectAnswer(row.name.toUpperCase())
+        const serverNowMs = new Date(row.server_now).getTime()
+        serverOffsetRef.current = serverNowMs - Date.now()
+        scheduleCountdownAndFlipRef.current?.(row.end_at)
+        setIsLoading(false)
+    }, [])
+
     const flipNow = useCallback(async () => {
         clearTimers()
 
@@ -216,34 +227,20 @@ export function useGameController() {
 
         const next = await getDailyImage()
         if (!next) return
-
-        setDailyImage(next)
-        if (next.name) setCorrectAnswer(next.name.toUpperCase())
-
-        if (scheduleCountdownAndFlipRef.current) {
-            scheduleCountdownAndFlipRef.current(next.end_at)
-        }
-    }, [clearTimers, setGuesses, setGameWon])
+        applyDaily(next)
+    }, [applyDaily, clearTimers, setGuesses, setGameWon])
 
     flipNowRef.current = flipNow
 
     const loadCurrent = useCallback(async () => {
         setIsLoading(true)
         const row = await getDailyImage()
-        setIsLoading(false)
-
-        if (!row) return
-
-        setDailyImage(row)
-        if (row.name) setCorrectAnswer(row.name.toUpperCase())
-
-        const serverNowMs = new Date(row.server_now).getTime()
-        serverOffsetRef.current = serverNowMs - Date.now()
-
-        if (scheduleCountdownAndFlipRef.current) {
-            scheduleCountdownAndFlipRef.current(row.end_at)
+        if (!row) {
+            setIsLoading(false)
+            return
         }
-    }, [])
+        applyDaily(row)
+    }, [applyDaily])
 
     loadCurrentRef.current = loadCurrent
 
@@ -301,7 +298,7 @@ export function useGameController() {
                 const isValidSavedState =
                     savedGameState.encodedIdolName &&
                     savedGameState.groupCategory &&
-                    savedGameState.base64Group
+                    (savedGameState.imageToken || savedGameState.base64Group)
 
                 if (!isValidSavedState) {
                     unlimitedStats.clearGameState(activeDifficulty, activeImageMode)
@@ -339,6 +336,7 @@ export function useGameController() {
                     group_category: savedGameState.groupCategory,
                     base64_group: savedGameState.base64Group,
                     base64_idol: savedGameState.base64Idol,
+                    image_token: savedGameState.imageToken,
                     group_name: savedGameState.groupName,
                     zoom_x: savedGameState.zoomX,
                     zoom_y: savedGameState.zoomY,
@@ -419,7 +417,9 @@ export function useGameController() {
                 ) {
                     const allImagesValid =
                         savedGameState.prefetchedImages.every(
-                            (img) => img.group_category && img.base64_group
+                            (img) =>
+                                img.group_category &&
+                                (img.base64_group || img.image_token)
                         )
 
                     if (allImagesValid) {
@@ -778,7 +778,7 @@ export function useGameController() {
                     if (
                         nextRow &&
                         nextRow.group_category &&
-                        nextRow.base64_group
+                        (nextRow.base64_group || nextRow.image_token)
                     ) {
                         const img = new window.Image()
                         img.src = getImageUrl(
@@ -787,7 +787,8 @@ export function useGameController() {
                             activeImageMode === 'zoom' ? 'clear' : 1,
                             'unlimited',
                             nextRow.group_category,
-                            nextRow.base64_group
+                            nextRow.base64_group,
+                            nextRow.image_token
                         )
                     }
                 }
@@ -1210,6 +1211,11 @@ export function useGameController() {
         let mounted = true
         const loadGame = async () => {
             if (!mounted) return
+            if (gameMode === 'daily' && initialDaily && !seededDailyRef.current) {
+                seededDailyRef.current = true
+                applyDaily(initialDaily)
+                return
+            }
             setDailyImage(null)
             setIsLoading(true)
             if (gameMode === 'daily') {
@@ -1234,7 +1240,7 @@ export function useGameController() {
             mounted = false
             clearTimers()
         }
-    }, [gameMode, pathname, clearTimers])
+    }, [gameMode, pathname, clearTimers, initialDaily, applyDaily])
 
     useEffect(() => {
         const update = () =>
@@ -1267,7 +1273,7 @@ export function useGameController() {
                     savedGameState &&
                     savedGameState.encodedIdolName &&
                     savedGameState.groupCategory &&
-                    savedGameState.base64Group
+                    (savedGameState.imageToken || savedGameState.base64Group)
                 if (isValidSavedState) {
                     const decodedName = decodeIdolName(
                         savedGameState.encodedIdolName
@@ -1284,6 +1290,7 @@ export function useGameController() {
                         group_category: savedGameState.groupCategory,
                         base64_group: savedGameState.base64Group,
                         base64_idol: savedGameState.base64Idol,
+                        image_token: savedGameState.imageToken,
                         group_name: savedGameState.groupName,
                         zoom_x: savedGameState.zoomX,
                         zoom_y: savedGameState.zoomY,
@@ -1549,10 +1556,19 @@ export function useGameController() {
         hintUsedOnIdol,
         setHintUsedOnIdol,
         consumeHint: () => {
+            const bucket = dailyImage?.img_bucket
             void (async () => {
-                const left = await consumeRoundHint('unlimited', difficulty, imageMode)
-                if (left == null) return
-                setHintsRemaining(left)
+                const result = await consumeRoundHint('unlimited', difficulty, imageMode)
+                if (!result) return
+                setHintsRemaining(result.hintsRemaining)
+                if (bucket) setHintUsedOnIdol(bucket)
+                if (result.groupName) {
+                    setDailyImage((current) =>
+                        current && current.img_bucket === bucket
+                            ? { ...current, group_name: result.groupName ?? undefined }
+                            : current
+                    )
+                }
             })()
         },
         showStreakPopup,

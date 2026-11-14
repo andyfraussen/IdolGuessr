@@ -7,6 +7,7 @@ import {
     type DailyImage,
     type HangulImage,
 } from '@/lib/supabase'
+import { loadMyOverview, revealInfiniteGroup } from '@/lib/game/actions'
 import { encodeIdolName } from '@/utils/encoding'
 import type { ImageMode, InfiniteDifficulty } from '@/utils/difficulty'
 import type {
@@ -70,6 +71,7 @@ interface ActiveGame {
         group_category?: string
         base64_group?: string
         base64_idol?: string
+        image_token?: string
         group_name?: string
         zoom_x?: number | null
         zoom_y?: number | null
@@ -84,6 +86,7 @@ interface ActiveGame {
         group_category?: string
         base64_group?: string
         base64_idol?: string
+        image_token?: string
         group_name?: string
         gen?: number
         zoom_x?: number | null
@@ -279,7 +282,7 @@ export function getUnlimitedGame(difficulty: InfiniteDifficulty, mode: ImageMode
     )
     if (!game) return null
     const resumed = issuedResume(game)
-    if (!resumed?.idol.group_category || !resumed.idol.base64_group) return null
+    if (!resumed?.idol.group_category || !(resumed.idol.image_token || resumed.idol.base64_group)) return null
     const idol = resumed.idol
     const queue = game.queue ?? []
     const max = difficulty === 'challenger' ? 3 : 6
@@ -289,6 +292,7 @@ export function getUnlimitedGame(difficulty: InfiniteDifficulty, mode: ImageMode
         groupCategory: idol.group_category,
         base64Group: idol.base64_group,
         base64Idol: idol.base64_idol,
+        imageToken: idol.image_token,
         encodedIdolName: encodeIdolName('\u200b'),
         groupName: idol.group_name,
         zoomX: idol.zoom_x,
@@ -308,6 +312,7 @@ export function getUnlimitedGame(difficulty: InfiniteDifficulty, mode: ImageMode
                   group_category: row.group_category,
                   base64_group: row.base64_group,
                   base64_idol: row.base64_idol,
+                  image_token: row.image_token,
                   group_name: row.group_name,
                   zoom_x: row.zoom_x,
                   zoom_y: row.zoom_y,
@@ -387,9 +392,9 @@ function mapVerdict(data: Record<string, unknown>, mode: string, difficulty: str
 }
 
 export async function refreshOverview() {
-    const { data, error } = await supabase.rpc('get_my_overview')
-    if (error) throw error
-    overview = data as Overview
+    const result = await loadMyOverview()
+    if (result.error || !result.overview) throw new Error(result.error ?? 'get_my_overview')
+    overview = result.overview as Overview
     applySettingsLocally(pendingSettings)
     ready = true
     const { data: userData } = await supabase.auth.getUser()
@@ -536,7 +541,10 @@ export async function judgeRoundGuess(input: {
     roundGuessActive = true
     try {
         const streakBefore = findStreak(modeForStreak, difficultyForStreak, imageModeForStreak)?.current_streak ?? 0
-        const focusKey = input.imgBucket || (input.idolId && input.idolId > 0 ? String(input.idolId) : '')
+        const focusKey =
+            input.pool === 'hangul' && input.idolId && input.idolId > 0
+                ? String(input.idolId)
+                : input.imgBucket || (input.idolId && input.idolId > 0 ? String(input.idolId) : '')
         if (focusKey) {
             const focused = await focusIssuedIdol(input.pool, focusKey, input.difficulty, input.imageMode)
             if (!focused) return null
@@ -587,19 +595,8 @@ export async function consumeRoundSkip(pool: 'unlimited' | 'hangul', difficulty 
 }
 
 export async function consumeRoundHint(pool: 'unlimited' | 'hangul', difficulty = '', imageMode = '') {
-    const { data, error } = await supabase.rpc('consume_round_hint', {
-        p_pool: pool,
-        p_difficulty: difficulty,
-        p_image_mode: imageMode,
-    })
-    if (error) {
-        const message = String(error.message)
-        if (!message.includes('no_hints') && !message.includes('no_active_round')) {
-            console.error('hint', error)
-        }
-        return null
-    }
-    return Number((data as { hints_remaining?: number })?.hints_remaining ?? 0)
+    if (pool === 'hangul') return null
+    return revealInfiniteGroup(difficulty, imageMode)
 }
 
 export async function releaseRound(pool: 'unlimited' | 'hangul', difficulty = '', imageMode = '') {
