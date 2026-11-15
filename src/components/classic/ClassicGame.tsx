@@ -1,19 +1,21 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ColorLegend from '@/components/classic/ColorLegend'
 import GuessGrid from '@/components/classic/GuessGrid'
 import ClassicFilterModal from '@/components/classic/ClassicFilterModal'
-import ClassicModeModal from '@/components/classic/ClassicModeModal'
 import ClassicWinModal from '@/components/classic/ClassicWinModal'
 import IdolSearchInput from '@/components/classic/IdolSearchInput'
+import GameHeader from '@/components/game/GameHeader'
+import AccountModal from '@/components/modals/AccountModal'
+import FeedbackModal from '@/components/modals/FeedbackModal'
+import HelpModal from '@/components/modals/HelpModal'
+import InfoModal from '@/components/modals/InfoModal'
 import {
     getClassicPool,
     giveUpClassic,
     loadClassicDaily,
-    setClassicGroup,
     startClassicRound,
     submitClassic,
     type ClassicCandidate,
@@ -60,7 +62,10 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
     const [resultOpen, setResultOpen] = useState(true)
     const [confirmGiveUp, setConfirmGiveUp] = useState(false)
     const [filterOpen, setFilterOpen] = useState(false)
-    const [modeOpen, setModeOpen] = useState(false)
+    const [showAccount, setShowAccount] = useState(false)
+    const [showInfo, setShowInfo] = useState(false)
+    const [showHelp, setShowHelp] = useState(false)
+    const [showFeedback, setShowFeedback] = useState(false)
     const rolled = useRef(false)
     const busyRef = useRef(false)
 
@@ -85,7 +90,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                     setEndAt(daily.endAt)
                     setServerOffset(new Date(daily.serverNow).getTime() - Date.now())
                 } else if (!getClassicGame('infinite')?.status) {
-                    await startClassicRound(getClassicGame('infinite')?.groupFilter ?? 'both')
+                    setFilterOpen(true)
                 }
             } catch (err) {
                 if (!cancel) setError(friendly(err))
@@ -123,6 +128,11 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
 
     const finished = game?.status === 'won' || game?.status === 'gave_up'
     const countdown = remaining == null ? null : formatCountdown(remaining)
+    const suggestions = useMemo(() => {
+        const filter = game?.groupFilter ?? 'both'
+        if (filter === 'both') return pool
+        return pool.filter((idol) => idol.groupCategory === filter)
+    }, [pool, game?.groupFilter])
 
     const pick = async (idol: ClassicCandidate) => {
         if (busyRef.current || game?.status !== 'in_progress') return
@@ -155,79 +165,63 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
         }
     }
 
-    const next = async () => {
+    const next = () => {
+        setResultOpen(false)
+        setFilterOpen(true)
+    }
+
+    const begin = async (group: ClassicGroup) => {
+        if (busyRef.current || game?.status === 'in_progress') return
+        busyRef.current = true
         setBusy(true)
         setError('')
         try {
-            await startClassicRound(game?.groupFilter ?? 'both')
+            await startClassicRound(group)
             setNewestId(null)
-            setResultOpen(true)
+            setConfirmGiveUp(false)
+            setFilterOpen(false)
+            setResultOpen(false)
         } catch (err) {
             setError(friendly(err))
         } finally {
+            busyRef.current = false
             setBusy(false)
         }
     }
 
-    const changeGroup = async (group: ClassicGroup) => {
-        setError('')
-        try {
-            await setClassicGroup(group)
-        } catch (err) {
-            setError(friendly(err))
-        }
-    }
+    const groupLabel = filterLabel(game?.groupFilter ?? 'both')
 
     return (
-        <main className='mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-6'>
-            <div className='flex items-center justify-between gap-3'>
-            <Link
-                    href='/'
-                    className='mb-8 flex h-8 cursor-pointer items-center justify-center gap-2 self-start rounded-full bg-zinc-800 px-3 transition-colors hover:bg-zinc-700'
-                    aria-label='Back to the game'
-                >
-                    <svg
-                        className='h-4 w-4 text-zinc-300'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                    >
-                        <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth={2}
-                            d='M10 19l-7-7m0 0l7-7m-7 7h18'
-                        />
-                    </svg>
-                    <span className='text-sm text-zinc-300'>
-                        Back to the game
-                    </span>
-                </Link>
-                <div className='flex items-center gap-2'>
-                    {mode === 'infinite' && (
-                        <button
-                            type='button'
-                            onClick={() => setFilterOpen(true)}
-                            className='inline-flex h-8 cursor-pointer items-center rounded-full bg-gray-200 px-3 text-sm text-gray-600 hover:bg-gray-300 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'
-                        >
-                            {filterLabel(game?.groupFilter ?? 'both')}
-                        </button>
-                    )}
-                    <button
-                        type='button'
-                        onClick={() => setModeOpen(true)}
-                        className='inline-flex h-8 cursor-pointer items-center rounded-full bg-gray-200 px-3 text-sm text-gray-600 hover:bg-gray-300 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'
-                    >
-                        {mode === 'daily' ? 'Daily' : 'Unlimited'}
-                    </button>
-                </div>
-            </div>
+        <div className='min-h-screen bg-white dark:bg-zinc-950'>
+            <div className='mx-auto flex min-h-screen w-full max-w-7xl flex-col'>
+            <GameHeader
+                timer=''
+                onShowAccount={() => setShowAccount(true)}
+                onShowInfo={() => setShowInfo(true)}
+                gameMode='classic'
+                onGameModeChange={() => {}}
+                showModeToggle={false}
+                onLogoClick={() => router.push('/')}
+            />
 
-            <div className='mt-8 text-center'>
+            <div className='px-4 pb-6'>
+            <div className='mt-4 text-center'>
                 <h1 className='text-5xl font-bold'>Classic</h1>
                 {mode === 'daily' && countdown && (
                     <p className='mt-2 text-sm font-semibold tabular-nums'>{countdown}</p>
                 )}
+                {mode === 'infinite' &&
+                    (game?.status === 'in_progress' ? (
+                        <p className='mt-3 text-sm font-semibold text-gray-500 dark:text-zinc-400'>{groupLabel}</p>
+                    ) : (
+                        <button
+                            type='button'
+                            onClick={() => setFilterOpen(true)}
+                            className='mt-3 cursor-pointer text-sm font-semibold text-gray-500 underline dark:text-zinc-400'
+                        >
+                            {groupLabel}
+                        </button>
+                    ))}
             </div>
 
             {loading ? (
@@ -235,7 +229,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
             ) : (
                 <>
                     <IdolSearchInput
-                        pool={pool}
+                        pool={suggestions}
                         excludedIds={game?.guesses.map((guess) => guess.id) ?? []}
                         disabled={busy || game?.status !== 'in_progress'}
                         pending={busy && game?.status === 'in_progress'}
@@ -289,6 +283,8 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                     )}
                 </>
             )}
+            </div>
+            </div>
 
             <ClassicWinModal
                 open={!loading && finished && resultOpen}
@@ -300,27 +296,53 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 onClose={() => setResultOpen(false)}
                 onNext={() => void next()}
             />
-            <ClassicModeModal
-                open={modeOpen}
-                active={mode}
-                onClose={() => setModeOpen(false)}
-                onDaily={() => {
-                    setModeOpen(false)
-                    if (mode !== 'daily') router.push('/classic/daily')
+            <AccountModal isOpen={showAccount} onClose={() => setShowAccount(false)} />
+            <InfoModal
+                isOpen={showInfo}
+                onClose={() => setShowInfo(false)}
+                onShowFeedback={() => {
+                    setShowInfo(false)
+                    setShowFeedback(true)
                 }}
-                onUnlimited={() => {
-                    setModeOpen(false)
-                    if (mode !== 'infinite') router.push('/classic')
+                onShowHelp={() => {
+                    setShowInfo(false)
+                    setShowHelp(true)
+                }}
+                onShowHistory={() => {}}
+                gameMode='unlimited'
+            />
+            <HelpModal
+                isOpen={showHelp}
+                onClose={() => setShowHelp(false)}
+                onBack={() => {
+                    setShowHelp(false)
+                    setShowInfo(true)
+                }}
+            />
+            <FeedbackModal
+                isOpen={showFeedback}
+                onClose={() => setShowFeedback(false)}
+                onBack={() => {
+                    setShowFeedback(false)
+                    setShowInfo(true)
                 }}
             />
             {mode === 'infinite' && (
                 <ClassicFilterModal
-                    open={filterOpen}
+                    open={filterOpen && game?.status !== 'in_progress'}
                     value={game?.groupFilter ?? 'both'}
-                    onClose={() => setFilterOpen(false)}
-                    onChange={(group) => void changeGroup(group)}
+                    busy={busy}
+                    onClose={
+                        game?.status
+                            ? () => {
+                                  setFilterOpen(false)
+                                  if (finished) setResultOpen(true)
+                              }
+                            : undefined
+                    }
+                    onStart={(group) => void begin(group)}
                 />
             )}
-        </main>
+        </div>
     )
 }

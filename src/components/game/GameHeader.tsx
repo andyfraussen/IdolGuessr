@@ -8,7 +8,7 @@ interface GameHeaderProps {
     timer: string
     onShowAccount?: () => void
     onShowInfo?: () => void
-    gameMode: 'daily' | 'unlimited' | 'hangul'
+    gameMode: 'daily' | 'unlimited' | 'hangul' | 'classic'
     onGameModeChange: (
         mode: 'daily' | 'unlimited',
         filter?: 'boy-group' | 'girl-group' | 'both',
@@ -96,8 +96,18 @@ export default function GameHeader({
                         </div>
                     )}
 
+                    {gameMode === 'classic' && (
+                        <div className='flex items-center justify-end'>
+                            <div className='rounded-full bg-pink-500 px-3.5 py-1.5'>
+                                <h1 className='text-sm font-bold tracking-widest text-white uppercase'>
+                                    Classic
+                                </h1>
+                            </div>
+                        </div>
+                    )}
+
                     <div className='flex items-center gap-2'>
-                        {gameMode === 'daily' && (
+                        {(gameMode === 'daily' || (gameMode === 'classic' && timer)) && (
                             <div className='flex flex-col items-end text-right'>
                                 <div className='text-xs font-medium text-gray-400 dark:text-zinc-500'>
                                     NEXT IDOL
@@ -211,7 +221,7 @@ export default function GameHeader({
     )
 }
 
-function GameModeIcon({ gameMode }: { gameMode: 'daily' | 'unlimited' | 'hangul' }) {
+function GameModeIcon({ gameMode }: { gameMode: 'daily' | 'unlimited' | 'hangul' | 'classic' }) {
     if (gameMode === 'unlimited' || gameMode === 'hangul') {
         return (
             <svg

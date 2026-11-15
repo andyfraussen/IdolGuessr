@@ -24,7 +24,7 @@ export default function GuessGrid({
     }
 
     return (
-        <div className='mt-6 overflow-x-auto pb-2'>
+        <div className='mt-6 min-w-0 overflow-x-auto pb-2'>
             <div className={`mx-auto grid w-max grid-cols-[7.5rem_repeat(8,7.5rem)] gap-x-1.5 gap-y-1.5 ${spaceGrotesk.className}`}>
                 <div className='flex items-end justify-center px-1 text-center text-sm font-semibold tracking-wide text-[#fff] uppercase'>
                     Idol

@@ -229,18 +229,6 @@ export async function startClassicRound(group: ClassicGroup = 'both') {
     return getClassicGame('infinite')
 }
 
-export async function setClassicGroup(group: ClassicGroup) {
-    const { error } = await supabase.rpc('set_classic_group', { p_group: group })
-    if (error) throw new Error(error.message)
-    const current = getClassicGame('infinite')
-    applyClassicGame('infinite', {
-        guesses: current?.guesses ?? [],
-        status: current?.status ?? null,
-        groupFilter: group,
-        answer: current?.answer ?? null,
-    })
-}
-
 export async function submitClassic(mode: ClassicMode, guessId: number) {
     const { data, error } = await supabase.rpc('submit_classic_guess', {
         p_difficulty: mode,

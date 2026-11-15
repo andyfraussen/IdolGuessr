@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import type { ClassicGroup } from '@/lib/classic'
 
 const OPTIONS: Array<{ id: ClassicGroup; label: string }> = [
@@ -11,14 +12,22 @@ const OPTIONS: Array<{ id: ClassicGroup; label: string }> = [
 export default function ClassicFilterModal({
     open,
     value,
+    busy = false,
     onClose,
-    onChange,
+    onStart,
 }: {
     open: boolean
     value: ClassicGroup
-    onClose: () => void
-    onChange: (group: ClassicGroup) => void
+    busy?: boolean
+    onClose?: () => void
+    onStart: (group: ClassicGroup) => void
 }) {
+    const [selected, setSelected] = useState<ClassicGroup>(value)
+
+    useEffect(() => {
+        if (open) setSelected(value)
+    }, [open, value])
+
     if (!open) return null
 
     return (
@@ -33,19 +42,16 @@ export default function ClassicFilterModal({
                     Groups
                 </h2>
                 <p className='mt-2 text-sm text-gray-500 dark:text-zinc-400'>
-                    Applies to the next idol.
+                    Choose who to guess. You can change this when you start a new game.
                 </p>
                 <div className='mt-6 flex flex-col gap-3'>
                     {OPTIONS.map((option) => (
                         <button
                             key={option.id}
                             type='button'
-                            onClick={() => {
-                                onChange(option.id)
-                                onClose()
-                            }}
+                            onClick={() => setSelected(option.id)}
                             className={`w-full cursor-pointer rounded-full py-3 font-semibold ${
-                                value === option.id
+                                selected === option.id
                                     ? 'bg-pink-500 text-white'
                                     : 'bg-gray-100 text-black dark:bg-zinc-800 dark:text-white'
                             }`}
@@ -54,6 +60,23 @@ export default function ClassicFilterModal({
                         </button>
                     ))}
                 </div>
+                <button
+                    type='button'
+                    disabled={busy}
+                    onClick={() => onStart(selected)}
+                    className='mt-4 w-full cursor-pointer rounded-full bg-black py-3 font-semibold text-white disabled:opacity-60 dark:bg-white dark:text-black'
+                >
+                    Start
+                </button>
+                {onClose && (
+                    <button
+                        type='button'
+                        onClick={onClose}
+                        className='mt-2 w-full cursor-pointer rounded-full py-3 text-sm text-gray-500 dark:text-zinc-400'
+                    >
+                        Cancel
+                    </button>
+                )}
             </div>
         </div>
     )
