@@ -671,6 +671,12 @@ export default function DailyClient({
                 onUnshuffledDaily={() => {
                     router.push('/unshuffled/daily', { scroll: false })
                 }}
+                onClassic={() => {
+                    router.push('/classic', { scroll: false })
+                }}
+                onClassicDaily={() => {
+                    router.push('/classic/daily', { scroll: false })
+                }}
             />
 
             {gameMode === 'daily' && !isInHistoryMode && (

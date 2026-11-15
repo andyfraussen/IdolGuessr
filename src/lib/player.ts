@@ -19,6 +19,12 @@ import type {
     UnlimitedStats,
     UserStats,
 } from '@/components/stats/UserStats'
+import type {
+    ClassicAnswer,
+    ClassicFeedback,
+    ClassicGame,
+    ClassicStatus,
+} from '@/lib/classic'
 
 export interface StreakRow {
     mode: string
@@ -57,8 +63,12 @@ interface ActiveGame {
     mode: string
     difficulty: string
     image_mode: string
-    guesses: Array<'correct' | 'incorrect' | 'empty'>
+    guesses: Array<'correct' | 'incorrect' | 'empty'> | ClassicFeedback[]
     guess_text: string[]
+    status?: ClassicStatus | null
+    group_filter?: string | null
+    daily_id?: number | null
+    answer?: ClassicAnswer | null
     hints_remaining: number | null
     skips_remaining: number | null
     last_outcome: string | null
@@ -353,6 +363,73 @@ export function getHangulGame(): HangulGameState | null {
               }))
             : undefined,
     }
+}
+
+function classicId(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isFinite(value)) return value
+    if (typeof value === 'string' && value !== '' && !Number.isNaN(Number(value))) return Number(value)
+    return null
+}
+
+export function getClassicGame(difficulty: 'daily' | 'infinite'): ClassicGame | null {
+    const game = overview?.active_games.find(
+        (row) => row.mode === 'classic' && row.difficulty === difficulty,
+    )
+    if (!game) return null
+    const guesses = Array.isArray(game.guesses)
+        ? game.guesses.filter(
+              (row): row is ClassicFeedback =>
+                  !!row && typeof row === 'object' && typeof (row as ClassicFeedback).name === 'string',
+          )
+        : []
+    const status: ClassicStatus | null =
+        game.status === 'in_progress' || game.status === 'won' || game.status === 'gave_up' ? game.status : null
+    const groupFilter =
+        game.group_filter === 'boy-group' || game.group_filter === 'girl-group' || game.group_filter === 'both'
+            ? game.group_filter
+            : 'both'
+    return {
+        guesses,
+        status,
+        groupFilter,
+        dailyId: classicId(game.daily_id),
+        answer: game.answer?.name ? game.answer : null,
+    }
+}
+
+export function applyClassicGame(
+    difficulty: 'daily' | 'infinite',
+    patch: {
+        guesses: ClassicFeedback[]
+        status: ClassicStatus | null
+        groupFilter?: ClassicGame['groupFilter']
+        dailyId?: number | null
+        answer?: ClassicAnswer | null
+    },
+) {
+    if (!overview) return
+    const index = overview.active_games.findIndex(
+        (row) => row.mode === 'classic' && row.difficulty === difficulty,
+    )
+    const current = index >= 0 ? overview.active_games[index] : null
+    const next: ActiveGame = {
+        mode: 'classic',
+        difficulty,
+        image_mode: '',
+        guesses: patch.guesses,
+        guess_text: [],
+        hints_remaining: null,
+        skips_remaining: null,
+        last_outcome: null,
+        idol: null,
+        status: patch.status,
+        group_filter: patch.groupFilter === undefined ? (current?.group_filter ?? null) : patch.groupFilter,
+        daily_id: patch.dailyId === undefined ? classicId(current?.daily_id) : patch.dailyId,
+        answer: patch.answer === undefined ? (current?.answer ?? null) : patch.answer,
+    }
+    if (index >= 0) overview.active_games[index] = next
+    else overview.active_games = [...overview.active_games, next]
+    emit()
 }
 
 function applyStreak(streak: StreakRow | null) {

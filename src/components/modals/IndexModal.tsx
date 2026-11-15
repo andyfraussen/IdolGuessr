@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import ClassicModeModal from '@/components/classic/ClassicModeModal'
 import UnshuffledModeModal from '@/components/unshuffled/UnshuffledModeModal'
 import { getDailyCount, getTodayDailyGuessCount } from '@/lib/supabase'
 
@@ -11,6 +12,8 @@ interface IndexModalProps {
     onChallenge?: () => void
     onUnshuffled?: () => void
     onUnshuffledDaily?: () => void
+    onClassic?: () => void
+    onClassicDaily?: () => void
 }
 
 export default function IndexModal({
@@ -21,15 +24,21 @@ export default function IndexModal({
     onChallenge,
     onUnshuffled,
     onUnshuffledDaily,
+    onClassic,
+    onClassicDaily,
 }: IndexModalProps) {
     const [isClosing, setIsClosing] = useState(false)
     const [unshuffledOpen, setUnshuffledOpen] = useState(false)
+    const [classicOpen, setClassicOpen] = useState(false)
     const [dailyCount, setDailyCount] = useState<number | null>(null)
     const [todayGuessCount, setTodayGuessCount] = useState<number | null>(null)
     const [todayLabel, setTodayLabel] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!isOpen) setUnshuffledOpen(false)
+        if (!isOpen) {
+            setUnshuffledOpen(false)
+            setClassicOpen(false)
+        }
     }, [isOpen])
 
     useEffect(() => {
@@ -91,7 +100,7 @@ export default function IndexModal({
                 <div className='mb-8 flex items-center justify-center'>
                     <Image
                         src='/images/idolguessr-logo.webp'
-                        alt='IdolGuessr Logo'
+                        alt='Classicr Logo'
                         width={350}
                         height={350}
                         className='h-auto w-auto dark:invert'
@@ -143,15 +152,24 @@ export default function IndexModal({
                             </button>
                         </div>
                         <div className='relative flex flex-row items-center justify-center'>
+                            <button
+                                onClick={handleUnshuffled}
+                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                            >
+                                <UnshuffledIcon />
+                                Unshuffled
+                            </button>
+                        </div>
+                        <div className='relative flex flex-row items-center justify-center'>
                             <span className='absolute -top-2 -right-2 z-10 rounded-full bg-pink-500 px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide text-white uppercase'>
                                 New
                             </span>
                             <button
-                                onClick={handleUnshuffled}
+                                onClick={() => setClassicOpen(true)}
                                 className='flex w-[90px] cursor-pointer flex-col items-center justify-center border-2 border-pink-500 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
-                                <UnshuffledIcon />
-                                Unshuffled
+                                <ClassicIcon />
+                                Classic
                             </button>
                         </div>
                     </div>
@@ -176,6 +194,12 @@ export default function IndexModal({
                 onClose={() => setUnshuffledOpen(false)}
                 onDaily={() => onUnshuffledDaily?.()}
                 onUnlimited={() => onUnshuffled?.()}
+            />
+            <ClassicModeModal
+                open={classicOpen}
+                onClose={() => setClassicOpen(false)}
+                onDaily={() => onClassicDaily?.()}
+                onUnlimited={() => onClassic?.()}
             />
         </div>
     )
@@ -241,6 +265,17 @@ function UnshuffledIcon() {
                 fill='currentColor'
                 d='M14 20v-2h2.6l-3.175-3.175L14.85 13.4L18 16.55V14h2v6zm-8.6 0L4 18.6L16.6 6H14V4h6v6h-2V7.4zm3.775-9.425L4 5.4L5.4 4l5.175 5.175z'
             />
+        </svg>
+    )
+}
+
+function ClassicIcon() {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='currentColor'>
+            <rect x='3' y='3' width='7' height='7' rx='1.5' />
+            <rect x='14' y='3' width='7' height='7' rx='1.5' opacity='0.45' />
+            <rect x='3' y='14' width='7' height='7' rx='1.5' opacity='0.7' />
+            <rect x='14' y='14' width='7' height='7' rx='1.5' opacity='0.3' />
         </svg>
     )
 }

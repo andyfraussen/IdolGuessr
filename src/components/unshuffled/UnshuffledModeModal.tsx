@@ -65,15 +65,6 @@ export default function UnshuffledModeModal({
                         }`}
                     >
                         Daily
-                        <span
-                            className={`mt-0.5 block text-xs font-normal ${
-                                active === 'daily'
-                                    ? 'text-white/80'
-                                    : 'opacity-70'
-                            }`}
-                        >
-                            One song for everyone, once a day
-                        </span>
                     </button>
                     <button
                         type='button'
@@ -88,15 +79,6 @@ export default function UnshuffledModeModal({
                         }`}
                     >
                         Unlimited
-                        <span
-                            className={`mt-0.5 block text-xs font-normal ${
-                                active === 'infinite'
-                                    ? 'text-white/80'
-                                    : 'text-gray-500 dark:text-zinc-400'
-                            }`}
-                        >
-                            Keep playing, and filter by group
-                        </span>
                     </button>
                 </div>
             </div>
