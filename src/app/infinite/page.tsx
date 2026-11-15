@@ -191,7 +191,6 @@ export default function InfinitePage() {
                                     group_category: dailyImage.group_category,
                                     base64_group: dailyImage.base64_group,
                                     base64_idol: dailyImage.base64_idol,
-                                    image_token: dailyImage.image_token,
                                     group_name: dailyImage.group_name,
                                     zoom_x: dailyImage.zoom_x,
                                     zoom_y: dailyImage.zoom_y,
@@ -322,31 +321,29 @@ export default function InfinitePage() {
                 idolName={correctAnswer}
                 imageUrl={
                     dailyImage &&
-                    (dailyImage.image_token ||
-                        (dailyImage.group_category && dailyImage.base64_group))
+                    dailyImage.group_category &&
+                    dailyImage.base64_group
                         ? getImageUrl(
                               dailyImage.group_type || '',
                               dailyImage.img_bucket,
                               'clear',
                               'unlimited',
                               dailyImage.group_category,
-                              dailyImage.base64_group,
-                              dailyImage.image_token
+                              dailyImage.base64_group
                           )
                         : ''
                 }
                 pixelatedImageUrl={
                     dailyImage &&
-                    (dailyImage.image_token ||
-                        (dailyImage.group_category && dailyImage.base64_group))
+                    dailyImage.group_category &&
+                    dailyImage.base64_group
                         ? getImageUrl(
                               dailyImage.group_type || '',
                               dailyImage.img_bucket,
                               1,
                               'unlimited',
                               dailyImage.group_category,
-                              dailyImage.base64_group,
-                              dailyImage.image_token
+                              dailyImage.base64_group
                           )
                         : ''
                 }

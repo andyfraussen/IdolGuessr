@@ -18,7 +18,6 @@ interface GameImageProps {
         group_category?: string
         base64_group?: string
         base64_idol?: string
-        image_token?: string
         group_name?: string
         zoom_x?: number | null
         zoom_y?: number | null
@@ -142,7 +141,6 @@ export default function GameImage({
     const hasValidData =
         !dailyImage ||
         gameMode === 'daily' ||
-        Boolean(dailyImage.image_token) ||
         (dailyImage.group_category && dailyImage.base64_group)
 
     const imageSlots: Array<number | 'clear'> = isChallenger
@@ -160,8 +158,7 @@ export default function GameImage({
                       num,
                       gameMode,
                       dailyImage.group_category,
-                      dailyImage.base64_group,
-                      dailyImage.image_token
+                      dailyImage.base64_group
                   )
               )
             : []
@@ -175,8 +172,7 @@ export default function GameImage({
                   'clear',
                   gameMode,
                   dailyImage.group_category,
-                  dailyImage.base64_group,
-                  dailyImage.image_token
+                  dailyImage.base64_group
               )
             : ''
     const zoomScale = getZoomScale(

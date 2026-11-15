@@ -298,7 +298,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                 const isValidSavedState =
                     savedGameState.encodedIdolName &&
                     savedGameState.groupCategory &&
-                    (savedGameState.imageToken || savedGameState.base64Group)
+                    savedGameState.base64Group
 
                 if (!isValidSavedState) {
                     unlimitedStats.clearGameState(activeDifficulty, activeImageMode)
@@ -336,7 +336,6 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                     group_category: savedGameState.groupCategory,
                     base64_group: savedGameState.base64Group,
                     base64_idol: savedGameState.base64Idol,
-                    image_token: savedGameState.imageToken,
                     group_name: savedGameState.groupName,
                     zoom_x: savedGameState.zoomX,
                     zoom_y: savedGameState.zoomY,
@@ -418,8 +417,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                     const allImagesValid =
                         savedGameState.prefetchedImages.every(
                             (img) =>
-                                img.group_category &&
-                                (img.base64_group || img.image_token)
+                                img.group_category && img.base64_group
                         )
 
                     if (allImagesValid) {
@@ -778,7 +776,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                     if (
                         nextRow &&
                         nextRow.group_category &&
-                        (nextRow.base64_group || nextRow.image_token)
+                        nextRow.base64_group
                     ) {
                         const img = new window.Image()
                         img.src = getImageUrl(
@@ -787,8 +785,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                             activeImageMode === 'zoom' ? 'clear' : 1,
                             'unlimited',
                             nextRow.group_category,
-                            nextRow.base64_group,
-                            nextRow.image_token
+                            nextRow.base64_group
                         )
                     }
                 }
@@ -1273,7 +1270,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                     savedGameState &&
                     savedGameState.encodedIdolName &&
                     savedGameState.groupCategory &&
-                    (savedGameState.imageToken || savedGameState.base64Group)
+                    savedGameState.base64Group
                 if (isValidSavedState) {
                     const decodedName = decodeIdolName(
                         savedGameState.encodedIdolName
@@ -1290,7 +1287,6 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                         group_category: savedGameState.groupCategory,
                         base64_group: savedGameState.base64Group,
                         base64_idol: savedGameState.base64Idol,
-                        image_token: savedGameState.imageToken,
                         group_name: savedGameState.groupName,
                         zoom_x: savedGameState.zoomX,
                         zoom_y: savedGameState.zoomY,
