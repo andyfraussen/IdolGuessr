@@ -101,7 +101,7 @@ export default function IdolSearchInput({
                 placeholder={pending ? 'Checking...' : disabled ? 'Round finished' : 'Type an idol name...'}
                 aria-label='Idol name'
                 autoComplete='off'
-                className='w-full rounded-full border border-zinc-300 bg-white px-4 py-3 outline-none focus:border-pink-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900'
+                className='w-full rounded-full border border-zinc-300 bg-white px-4 py-3 outline-none focus:border-pink-500 disabled:border-[#3aa346] dark:border-zinc-700 dark:bg-zinc-900 dark:disabled:border-[#3aa346]'
             />
             {open && matches.length > 0 && (
                 <ul className='absolute z-20 mt-2 max-h-80 w-full overflow-auto rounded-2xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900'>

@@ -53,15 +53,15 @@ export default function UnshuffledModeModal({
                 <p className='mt-2 text-sm text-gray-500 dark:text-zinc-400'>
                     Put a scrambled song back together.
                 </p>
-                <div className='mt-6 flex flex-col gap-3'>
+                <div className='mt-6 flex flex-col items-center gap-3'>
                     <button
                         type='button'
                         onClick={onDaily}
                         aria-current={active === 'daily' ? 'page' : undefined}
-                        className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-full py-3 font-semibold text-white transition-colors ${
+                        className={`flex w-[200px] cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-1.5 font-semibold text-white transition-colors ${
                             active === 'daily'
                                 ? 'bg-pink-600'
-                                : 'bg-pink-500 hover:bg-pink-600'
+                                : 'bg-pink-600 hover:bg-pink-700 transition-colors'
                         }`}
                     >
                         <DailyIcon />
@@ -73,10 +73,10 @@ export default function UnshuffledModeModal({
                         aria-current={
                             active === 'infinite' ? 'page' : undefined
                         }
-                        className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-full py-3 font-semibold text-white transition-colors ${
+                        className={`flex w-[200px] cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-1.5 font-semibold text-white transition-colors ${
                             active === 'infinite'
                                 ? 'bg-pink-600'
-                                : 'bg-pink-500 hover:bg-pink-600'
+                                : 'bg-pink-600 hover:bg-pink-700 transition-colors'
                         }`}
                     >
                         <InfiniteIcon />

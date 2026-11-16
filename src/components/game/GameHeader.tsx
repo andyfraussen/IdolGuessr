@@ -98,7 +98,7 @@ export default function GameHeader({
 
                     {gameMode === 'classic' && (
                         <div className='flex items-center justify-end'>
-                            <div className='rounded-full bg-pink-500 px-3.5 py-1.5'>
+                            <div className='rounded-full bg-pink-600 px-3.5 py-1.5'>
                                 <h1 className='text-sm font-bold tracking-widest text-white uppercase'>
                                     Classic
                                 </h1>

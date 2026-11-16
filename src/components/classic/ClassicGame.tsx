@@ -195,7 +195,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
         <div className='min-h-screen bg-white dark:bg-zinc-950'>
             <div className='mx-auto w-full sm:max-w-md'>
             <GameHeader
-                timer=''
+                timer={mode === 'daily' && countdown ? countdown : ''}
                 onShowAccount={() => setShowAccount(true)}
                 onShowInfo={() => setShowInfo(true)}
                 gameMode='classic'
@@ -272,7 +272,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             <button
                                 type='button'
                                 onClick={() => setResultOpen(true)}
-                                className='cursor-pointer rounded-full bg-black px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-black'
+                                className='cursor-pointer rounded-full bg-pink-600 hover:bg-pink-700 font-bold px-4 py-2 text-white'
                             >
                                 Result
                             </button>
@@ -288,7 +288,6 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 answer={game?.answer ?? null}
                 guesses={game?.guesses ?? []}
                 dailyId={game?.dailyId ?? null}
-                countdown={countdown}
                 onClose={() => setResultOpen(false)}
                 onNext={() => void next()}
             />

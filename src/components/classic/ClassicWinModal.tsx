@@ -10,7 +10,6 @@ export default function ClassicWinModal({
     answer,
     guesses,
     dailyId,
-    countdown,
     onClose,
     onNext,
 }: {
@@ -19,7 +18,6 @@ export default function ClassicWinModal({
     answer: ClassicAnswer | null
     guesses: ClassicFeedback[]
     dailyId: number | null
-    countdown: string | null
     onClose: () => void
     onNext?: () => void
 }) {
@@ -56,7 +54,7 @@ export default function ClassicWinModal({
     return (
         <div className='fixed inset-0 z-[500] flex items-center justify-center bg-black/40 px-4'>
             <div
-                className='w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-zinc-900'
+                className='w-full max-w-sm rounded-md bg-white border border-pink-600 p-6 text-center shadow-xl dark:bg-zinc-900'
                 role='dialog'
                 aria-modal='true'
                 aria-labelledby='classic-result-title'
@@ -67,7 +65,7 @@ export default function ClassicWinModal({
                         alt=''
                         width={160}
                         height={160}
-                        className='mx-auto h-40 w-40 rounded-lg object-cover'
+                        className='mx-auto h-60 w-60 object-cover'
                     />
                 ) : null}
                 <h2 id='classic-result-title' className='mt-3 text-2xl font-bold'>
@@ -79,31 +77,28 @@ export default function ClassicWinModal({
                         ? 'Answer revealed'
                         : `Solved in ${guesses.length} ${guesses.length === 1 ? 'guess' : 'guesses'}`}
                 </p>
-                <button
-                    type='button'
-                    onClick={() => void share()}
-                    className='mt-4 w-full cursor-pointer rounded-full bg-gray-100 py-3 font-semibold text-black dark:bg-zinc-800 dark:text-white'
-                >
-                    {copied ? 'Copied' : 'Share'}
-                </button>
                 {mode === 'daily' ? (
                     <>
-                        {countdown && (
-                            <p className='mt-4 text-sm text-gray-500 dark:text-zinc-400'>Next idol in {countdown}</p>
-                        )}
-                        <button
+                    <button
+                        type='button'
+                        onClick={() => void share()}
+                        className='mx-auto mt-4 block w-[200px] cursor-pointer rounded-full bg-gray-100 hover:bg-gray-200 dark:hover:text-white transition-colors dark:hover:bg-zinc-800 dark:bg-zinc-900 border border-pink-600 font-bold px-4 py-1.5 text-pink-600'
+                    >
+                        {copied ? 'Copied' : 'Share'}
+                    </button>
+                    <button
                             type='button'
                             onClick={onClose}
-                            className='mt-3 w-full cursor-pointer rounded-full bg-black py-3 font-semibold text-white dark:bg-white dark:text-black'
+                            className='mx-auto mt-3 block w-[200px] cursor-pointer rounded-full bg-pink-600 hover:bg-pink-700 transition-colors font-bold px-4 py-1.5 text-white'
                         >
                             Close
-                        </button>
+                    </button>
                     </>
                 ) : (
                     <button
                         type='button'
                         onClick={onNext}
-                        className='mt-3 w-full cursor-pointer rounded-full bg-black py-3 font-semibold text-white dark:bg-white dark:text-black'
+                        className='mx-auto mt-3 block w-[200px] cursor-pointer rounded-full bg-pink-600 hover:bg-pink-700 transition-colors font-bold px-4 py-1.5 text-white'
                     >
                         Next idol
                     </button>

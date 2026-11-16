@@ -40,7 +40,7 @@ export default function ClassicModeModal({
                 <p className='mt-2 text-sm text-gray-500 dark:text-zinc-400'>
                     Guess an idol from their group, age, and the rest.
                 </p>
-                <div className='mt-6 flex flex-col gap-3'>
+                <div className='mt-6 flex flex-col items-center gap-3'>
                     <ModeButton
                         active={active === 'daily'}
                         onClick={onDaily}
@@ -75,8 +75,8 @@ function ModeButton({
             type='button'
             onClick={onClick}
             aria-current={active ? 'page' : undefined}
-            className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-full py-3 font-semibold text-white transition-colors ${
-                active ? 'bg-pink-600' : 'bg-pink-500 hover:bg-pink-600'
+            className={`flex w-[200px] cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-1.5 font-semibold text-white transition-colors ${
+                active ? 'bg-pink-600' : 'bg-pink-600 hover:bg-pink-700 transition-colors'
             }`}
         >
             {icon}

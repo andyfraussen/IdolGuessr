@@ -1,3 +1,10 @@
+import { Space_Grotesk } from 'next/font/google'
+
+const spaceGrotesk = Space_Grotesk({
+    subsets: ['latin'],
+    weight: ['400', '500', '600', '700'],
+})
+
 const ITEMS = [
     { label: 'Correct', className: 'bg-[#3aa346]' },
     { label: 'Partial', className: 'bg-[#e39b2b]' },
@@ -8,11 +15,11 @@ const ITEMS = [
 
 export default function ColorLegend() {
     return (
-        <div className='mt-6'>
+        <div className={`mt-6 ${spaceGrotesk.className}`}>
             <div className='mt-3 flex flex-wrap items-end justify-center gap-4'>
                 {ITEMS.map((item) => (
                     <div key={item.label} className='flex w-16 flex-col items-center gap-1'>
-                        <div className={`flex h-9 w-9 items-center justify-center overflow-hidden rounded text-white ${item.className}`}>
+                        <div className={`flex h-9 w-9 items-center justify-center overflow-hidden rounded text-black dark:text-white ${item.className}`}>
                             {item.direction && (
                                 <span
                                     aria-hidden
@@ -25,7 +32,7 @@ export default function ColorLegend() {
                                 />
                             )}
                         </div>
-                        <span className='whitespace-pre-line text-center text-xs leading-tight text-[#fff]'>
+                        <span className='whitespace-pre-line text-center text-xs leading-tight text-black dark:text-white'>
                             {item.label}
                         </span>
                     </div>
