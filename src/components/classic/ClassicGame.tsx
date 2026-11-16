@@ -193,7 +193,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
 
     return (
         <div className='min-h-screen bg-white dark:bg-zinc-950'>
-            <div className='mx-auto flex min-h-screen w-full max-w-7xl flex-col'>
+            <div className='mx-auto w-full sm:max-w-md'>
             <GameHeader
                 timer=''
                 onShowAccount={() => setShowAccount(true)}
@@ -203,13 +203,10 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 showModeToggle={false}
                 onLogoClick={() => router.push('/')}
             />
+            </div>
 
-            <div className='px-4 pb-6'>
+            <div className='mx-auto w-full max-w-7xl px-4 pb-6'>
             <div className='mt-4 text-center'>
-                <h1 className='text-5xl font-bold'>Classic</h1>
-                {mode === 'daily' && countdown && (
-                    <p className='mt-2 text-sm font-semibold tabular-nums'>{countdown}</p>
-                )}
                 {mode === 'infinite' &&
                     (game?.status === 'in_progress' ? (
                         <p className='mt-3 text-sm font-semibold text-gray-500 dark:text-zinc-400'>{groupLabel}</p>
@@ -283,7 +280,6 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                     )}
                 </>
             )}
-            </div>
             </div>
 
             <ClassicWinModal

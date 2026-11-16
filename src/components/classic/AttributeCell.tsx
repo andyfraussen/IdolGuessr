@@ -1,4 +1,6 @@
 import type { AttributeStatus } from '@/lib/classic'
+import { COUNTRIES } from '@/components/classic/countries'
+import Image from 'next/image'
 
 const TONE: Record<AttributeStatus, string> = {
     correct: 'bg-[#3aa346]',
@@ -8,9 +10,42 @@ const TONE: Record<AttributeStatus, string> = {
     lower: 'bg-[#d64545]',
 }
 
+function formatHeight(value: string | number) {
+    const cm = typeof value === 'number' ? value : Number(value)
+    if (!Number.isFinite(cm)) return String(value)
+    const totalInches = Math.round(cm / 2.54)
+    const feet = Math.floor(totalInches / 12)
+    const inches = totalInches % 12
+    return `${cm}cm/${feet}'${inches}`
+}
+
+function NationalityValue({ value }: { value: string }) {
+    const parts = value.split(',').map((part) => part.trim()).filter(Boolean)
+    return (
+        <span className='flex flex-col items-center gap-1'>
+            {parts.map((part) => {
+                const country = COUNTRIES[part]
+                if (!country) return <span key={part}>{part}</span>
+                return (
+                    <span key={part} className='flex flex-col items-center gap-0.5'>
+                        <Image
+                            src={`/flags/${country.code}.svg`}
+                            alt={country.name}
+                            width={0}
+                            height={0}
+                            className='w-10 h-10'
+                        />
+                        <span className='text-[11px] leading-none'>{country.name}</span>
+                    </span>
+                )
+            })}
+        </span>
+    )
+}
+
 export function formatAttribute(key: string, value: string | number | null) {
     if (value == null || value === '') return '—'
-    if (key === 'height') return `${value} cm`
+    if (key === 'height') return formatHeight(value)
     return String(value)
 }
 
@@ -26,6 +61,7 @@ export default function AttributeCell({
     delay?: number
 }) {
     const direction = status === 'higher' ? 'up' : status === 'lower' ? 'down' : null
+    const showNationality = column === 'nationality' && typeof value === 'string' && value !== ''
 
     return (
         <div
@@ -44,7 +80,7 @@ export default function AttributeCell({
                 />
             )}
             <span className='relative z-10 min-w-0 leading-tight break-words'>
-                {formatAttribute(column, value)}
+                {showNationality ? <NationalityValue value={value} /> : formatAttribute(column, value)}
             </span>
         </div>
     )
