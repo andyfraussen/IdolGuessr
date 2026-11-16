@@ -37,8 +37,8 @@ export default function ClassicModeModal({
                 <h2 id='classic-mode-title' className='text-2xl font-bold'>
                     Classic
                 </h2>
-                <p className='mt-2 text-sm text-gray-500 dark:text-zinc-400'>
-                    Guess an idol from their group, age, and the rest.
+                <p className='mt-2 text-base text-gray-500 dark:text-zinc-400'>
+                    Guess the idol based on clues after every turn
                 </p>
                 <div className='mt-6 flex flex-col items-center gap-3'>
                     <ModeButton

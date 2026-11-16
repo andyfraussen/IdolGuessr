@@ -50,8 +50,8 @@ export default function UnshuffledModeModal({
                 <h2 id='unshuffled-mode-title' className='text-2xl font-bold'>
                     Unshuffled
                 </h2>
-                <p className='mt-2 text-sm text-gray-500 dark:text-zinc-400'>
-                    Put a scrambled song back together.
+                <p className='mt-2 text-base text-gray-500 dark:text-zinc-400'>
+                    Put a scrambled song back together
                 </p>
                 <div className='mt-6 flex flex-col items-center gap-3'>
                     <button

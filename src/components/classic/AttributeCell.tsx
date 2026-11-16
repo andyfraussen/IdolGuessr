@@ -35,7 +35,7 @@ function NationalityValue({ value }: { value: string }) {
                             height={0}
                             className='w-10 h-10'
                         />
-                        <span className='text-[11px] leading-none'>{country.name}</span>
+                        <span className='text-xs leading-none'>{country.name}</span>
                     </span>
                 )
             })}

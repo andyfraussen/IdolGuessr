@@ -46,8 +46,8 @@ export default function VisualModeModal({
                 <h2 id='visual-mode-title' className='text-2xl font-bold'>
                     Visual
                 </h2>
-                <p className='mt-2 text-sm text-gray-500 dark:text-zinc-400'>
-                    Name the idol as the photo comes into focus.
+                <p className='mt-2 text-base text-gray-500 dark:text-zinc-400'>
+                    Guess the idol based on pixelated or zoomed images
                 </p>
                 <div className='mt-6 flex flex-col items-center gap-3'>
                     <button
