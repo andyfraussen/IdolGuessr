@@ -11,9 +11,11 @@ const spaceGrotesk = Space_Grotesk({
 export default function GuessGrid({
     guesses,
     newestId,
+    onRevealEnd,
 }: {
     guesses: ClassicFeedback[]
     newestId: number | null
+    onRevealEnd?: () => void
 }) {
     if (guesses.length === 0) {
         return (
@@ -25,7 +27,10 @@ export default function GuessGrid({
 
     return (
         <div className='mt-6 min-w-0 overflow-x-auto pb-2'>
-            <div className={`mx-auto grid w-max grid-cols-[7.5rem_repeat(8,7.5rem)] gap-x-1.5 gap-y-1.5 ${spaceGrotesk.className}`}>
+            <div
+                className={`mx-auto grid w-max grid-cols-[7.5rem_repeat(8,7.5rem)] gap-x-1.5 gap-y-1.5 ${spaceGrotesk.className}`}
+                style={{ perspective: '1200px' }}
+            >
                 <div className='flex items-end justify-center px-1 text-center text-sm font-semibold tracking-wide text-black dark:text-white uppercase'>
                     Idol
                 </div>
@@ -38,7 +43,12 @@ export default function GuessGrid({
                     </div>
                 ))}
                 {guesses.map((guess) => (
-                    <GuessRow key={guess.id} guess={guess} animate={guess.id === newestId} />
+                    <GuessRow
+                        key={guess.id}
+                        guess={guess}
+                        animate={guess.id === newestId}
+                        onRevealEnd={guess.id === newestId ? onRevealEnd : undefined}
+                    />
                 ))}
             </div>
         </div>

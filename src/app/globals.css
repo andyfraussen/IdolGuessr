@@ -163,14 +163,3 @@ html.dark {
 .fade-in-from-top {
     animation: fadeInFromTop 0.15s ease-out;
 }
-
-@keyframes classic-flip {
-    from {
-        transform: rotateX(90deg);
-        opacity: 0;
-    }
-    to {
-        transform: rotateX(0deg);
-        opacity: 1;
-    }
-}

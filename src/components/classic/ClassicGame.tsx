@@ -1,9 +1,10 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ColorLegend from '@/components/classic/ColorLegend'
 import GuessGrid from '@/components/classic/GuessGrid'
+import { CLASSIC_REVEAL_MS } from '@/components/classic/GuessRow'
 import ClassicFilterModal from '@/components/classic/ClassicFilterModal'
 import ClassicWinModal from '@/components/classic/ClassicWinModal'
 import IdolSearchInput from '@/components/classic/IdolSearchInput'
@@ -60,6 +61,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
     const [serverOffset, setServerOffset] = useState(0)
     const [now, setNow] = useState(() => Date.now())
     const [resultOpen, setResultOpen] = useState(true)
+    const [revealHold, setRevealHold] = useState(false)
     const [confirmGiveUp, setConfirmGiveUp] = useState(false)
     const [filterOpen, setFilterOpen] = useState(false)
     const [showAccount, setShowAccount] = useState(false)
@@ -68,6 +70,8 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
     const [showFeedback, setShowFeedback] = useState(false)
     const rolled = useRef(false)
     const busyRef = useRef(false)
+    const holdResult = useRef(false)
+    const revealTimer = useRef<number | null>(null)
 
     useEffect(() => {
         const sync = () => setGame(getClassicGame(mode))
@@ -134,15 +138,38 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
         return pool.filter((idol) => idol.groupCategory === filter)
     }, [pool, game?.groupFilter])
 
+    const finishReveal = useCallback(() => {
+        if (revealTimer.current != null) {
+            window.clearTimeout(revealTimer.current)
+            revealTimer.current = null
+        }
+        if (!holdResult.current) return
+        holdResult.current = false
+        setRevealHold(false)
+        setResultOpen(true)
+    }, [])
+
+    useEffect(() => {
+        return () => {
+            if (revealTimer.current != null) window.clearTimeout(revealTimer.current)
+        }
+    }, [])
+
     const pick = async (idol: ClassicCandidate) => {
         if (busyRef.current || game?.status !== 'in_progress') return
         busyRef.current = true
         setBusy(true)
         setError('')
         try {
-            await submitClassic(mode, idol.id)
             setNewestId(idol.id)
-            setResultOpen(true)
+            const result = await submitClassic(mode, idol.id)
+            if (result.solved) {
+                holdResult.current = true
+                setRevealHold(true)
+                setResultOpen(false)
+                if (revealTimer.current != null) window.clearTimeout(revealTimer.current)
+                revealTimer.current = window.setTimeout(finishReveal, CLASSIC_REVEAL_MS + 50)
+            }
         } catch (err) {
             setError(friendly(err))
         } finally {
@@ -234,7 +261,11 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                     />
                     <ColorLegend />
                     {error && <p className='mt-3 text-center text-sm text-red-600'>{error}</p>}
-                    <GuessGrid guesses={game?.guesses ?? []} newestId={newestId} />
+                    <GuessGrid
+                        guesses={game?.guesses ?? []}
+                        newestId={newestId}
+                        onRevealEnd={finishReveal}
+                    />
                     {mode === 'infinite' && game?.status === 'in_progress' && (
                         <div className='mt-4 flex justify-center'>
                             {confirmGiveUp ? (
@@ -267,7 +298,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             )}
                         </div>
                     )}
-                    {finished && !resultOpen && (
+                    {finished && !resultOpen && !revealHold && (
                         <div className='mt-4 flex justify-center'>
                             <button
                                 type='button'
@@ -331,7 +362,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                         game?.status
                             ? () => {
                                   setFilterOpen(false)
-                                  if (finished) setResultOpen(true)
+                                  if (finished && !holdResult.current) setResultOpen(true)
                               }
                             : undefined
                     }

@@ -3,11 +3,24 @@ import AttributeCell from '@/components/classic/AttributeCell'
 import { idolPortrait, type ClassicFeedback } from '@/lib/classic'
 import { GUESS_COLUMNS } from '@/components/classic/columns'
 
-export default function GuessRow({ guess, animate = false }: { guess: ClassicFeedback; animate?: boolean }) {
+const FLIP_MS = 850
+const FLIP_STAGGER_MS = 160
+
+export const CLASSIC_REVEAL_MS = FLIP_MS + FLIP_STAGGER_MS * (GUESS_COLUMNS.length - 1)
+
+export default function GuessRow({
+    guess,
+    animate = false,
+    onRevealEnd,
+}: {
+    guess: ClassicFeedback
+    animate?: boolean
+    onRevealEnd?: () => void
+}) {
     const portrait = idolPortrait(guess)
 
     return (
-        <div className='contents' style={{ perspective: '600px' }}>
+        <div className='contents'>
             <div className='relative h-[7.5rem] w-full overflow-hidden rounded-md border border-zinc-300 bg-zinc-900 dark:border-zinc-700'>
                 {portrait ? (
                     <Image
@@ -30,7 +43,10 @@ export default function GuessRow({ guess, animate = false }: { guess: ClassicFee
                     column={column.key}
                     value={guess[column.key].value}
                     status={guess[column.key].status}
-                    delay={animate ? 70 * (index + 1) : 0}
+                    animate={animate}
+                    flipMs={FLIP_MS}
+                    delay={animate ? FLIP_STAGGER_MS * index : 0}
+                    onFlipEnd={index === GUESS_COLUMNS.length - 1 ? onRevealEnd : undefined}
                 />
             ))}
         </div>
