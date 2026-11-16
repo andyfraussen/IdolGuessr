@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import FilterModal from '../filters/FilterModal'
+import SettingsModal from '../modals/SettingsModal'
 import { useFeedbackUnread } from '@/hooks/useFeedbackUnread'
 import type { ImageMode, InfiniteDifficulty } from '@/utils/difficulty'
 
@@ -37,6 +38,7 @@ export default function GameHeader({
     isChallenge = false,
 }: GameHeaderProps) {
     const [showFilterModal, setShowFilterModal] = useState(false)
+    const [showSettings, setShowSettings] = useState(false)
     const feedbackUnread = useFeedbackUnread()
 
     return (
@@ -161,6 +163,20 @@ export default function GameHeader({
                             </div>
                         )}
                    
+                        <button
+                            onClick={() => setShowSettings(true)}
+                            className='flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg bg-gray-100 transition-colors hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                            aria-label='Settings'
+                        >
+                            <Image
+                                width={24}
+                                height={24}
+                                src='/icons/settings.svg'
+                                alt=''
+                                className='h-6 w-6 dark:invert'
+                            />
+                        </button>
+
                         {onShowAccount && (
                             <button
                                 onClick={onShowAccount}
@@ -200,6 +216,11 @@ export default function GameHeader({
                     </div>
                 </div>
             </div>
+
+            <SettingsModal
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+            />
 
             {showModeToggle && (
                 <FilterModal

@@ -178,8 +178,8 @@ export default function IndexModal({
                         <span className='text-pink-600'>
                             {todayGuessCount.toLocaleString()}{' '}
                         </span>
-                        {todayGuessCount === 1 ? 'person' : 'people'} guessed
-                        today&apos;s idol already
+                        {todayGuessCount === 1 ? 'person' : 'people'} have guessed
+                        today&apos;s idol
                     </p>
                 )}
             </div>
