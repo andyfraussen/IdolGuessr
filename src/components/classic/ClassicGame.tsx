@@ -274,9 +274,9 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
 
                 <div className='mx-auto mt-4 w-full max-w-md'>
                     <div className='mb-3 flex justify-center'>
-                            <h1 className='font-bold text-white text-5xl'>
-                                Classic
-                            </h1>
+                        <h1 className='text-5xl font-bold text-white'>
+                            Classic
+                        </h1>
                     </div>
                     {loading ? (
                         <p className='mt-6 text-center text-sm text-gray-500 dark:text-zinc-400'>
@@ -311,38 +311,13 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                         {mode === 'infinite' &&
                             game?.status === 'in_progress' && (
                                 <div className='mt-4 flex justify-center'>
-                                    {confirmGiveUp ? (
-                                        <div className='flex items-center gap-2 text-sm'>
-                                            <span>Reveal the answer?</span>
-                                            <button
-                                                type='button'
-                                                onClick={() => void reveal()}
-                                                disabled={busy}
-                                                className='cursor-pointer rounded-full bg-red-600 px-3 py-1.5 font-semibold text-white'
-                                            >
-                                                Reveal
-                                            </button>
-                                            <button
-                                                type='button'
-                                                onClick={() =>
-                                                    setConfirmGiveUp(false)
-                                                }
-                                                className='cursor-pointer rounded-full bg-gray-200 px-3 py-1.5 dark:bg-zinc-800'
-                                            >
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            type='button'
-                                            onClick={() =>
-                                                setConfirmGiveUp(true)
-                                            }
-                                            className='cursor-pointer text-sm text-gray-500 underline dark:text-zinc-400'
-                                        >
-                                            Give up
-                                        </button>
-                                    )}
+                                    <button
+                                        type='button'
+                                        onClick={() => setConfirmGiveUp(true)}
+                                        className='cursor-pointer rounded-full bg-pink-600 px-4 py-2 font-bold text-white hover:bg-pink-700'
+                                    >
+                                        Give up
+                                    </button>
                                 </div>
                             )}
                         {finished && !resultOpen && !revealHold && (
@@ -360,6 +335,12 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 )}
             </div>
 
+            <GiveUpModal
+                open={confirmGiveUp}
+                busy={busy}
+                onCancel={() => setConfirmGiveUp(false)}
+                onReveal={() => void reveal()}
+            />
             <ClassicWinModal
                 open={!loading && finished && resultOpen}
                 mode={mode}
@@ -421,5 +402,70 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 />
             )}
         </div>
+    )
+}
+
+function GiveUpModal({
+    open,
+    busy,
+    onCancel,
+    onReveal,
+}: {
+    open: boolean
+    busy: boolean
+    onCancel: () => void
+    onReveal: () => void
+}) {
+    if (!open) return null
+
+    return (
+        <div className='fixed inset-0 z-600 flex items-center justify-center bg-black/40 px-4'>
+            <div
+                className='modal-fade-in relative w-full max-w-sm rounded-md border border-pink-600 bg-white p-6 text-center shadow-xl dark:bg-zinc-900'
+                role='dialog'
+                aria-modal='true'
+                aria-labelledby='classic-give-up-title'
+            >
+                <button
+                    type='button'
+                    onClick={onCancel}
+                    className='absolute top-4 right-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+                    aria-label='Close'
+                >
+                    <CloseIcon />
+                </button>
+                <h2 id='classic-give-up-title' className='text-xl font-bold'>
+                    Give up?
+                </h2>
+                <p className='mt-2 text-sm text-gray-500 dark:text-zinc-400'>
+                    This reveals the answer and ends your streak.
+                </p>
+                <div className='mt-6 flex justify-center gap-2'>
+                    <button
+                        type='button'
+                        onClick={onCancel}
+                        className='cursor-pointer rounded-full bg-gray-200 px-4 py-2 font-bold dark:bg-zinc-800'
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type='button'
+                        onClick={onReveal}
+                        disabled={busy}
+                        className='cursor-pointer rounded-full bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700 disabled:opacity-60'
+                    >
+                        Reveal
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function CloseIcon() {
+    return (
+        <svg className='h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+        </svg>
     )
 }
