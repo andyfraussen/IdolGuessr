@@ -17,6 +17,12 @@ const TABS = [
     { id: 'daily', label: 'Daily' },
     { id: 'infinite', label: 'Infinite' },
     { id: 'hangul', label: 'Hangul' },
+    { id: 'classic', label: 'Classic' },
+] as const
+
+const CLASSIC_LISTS = [
+    { id: 'daily', label: 'Daily' },
+    { id: 'infinite', label: 'Infinite' },
 ] as const
 
 type Tab = (typeof TABS)[number]['id']
@@ -26,7 +32,13 @@ type LeaderboardRow = {
     nickname: string
     avatar_url?: string | null
     max_streak: number
+    avg_guesses?: number | null
     is_me: boolean
+}
+
+function averageLabel(value: number | null | undefined) {
+    if (value == null || Number.isNaN(value)) return null
+    return value.toFixed(1)
 }
 
 const PODIUM = [2, 1, 3] as const
@@ -81,7 +93,13 @@ function YouBadge({ prominent }: { prominent: boolean }) {
     )
 }
 
-function TopThree({ rows }: { rows: LeaderboardRow[] }) {
+function TopThree({
+    rows,
+    showAverage,
+}: {
+    rows: LeaderboardRow[]
+    showAverage: boolean
+}) {
     if (rows.length === 0) return null
 
     return (
@@ -123,8 +141,17 @@ function TopThree({ rows }: { rows: LeaderboardRow[] }) {
                             <div className='mt-1 flex h-5 items-center'>
                                 {row?.is_me ? <YouBadge prominent /> : null}
                             </div>
-                            <p className='text-xs text-gray-500 dark:text-zinc-400'>
+                            <p className='text-center text-base font-bold leading-4 text-gray-500 dark:text-gray-100'>
                                 {row ? `${row.max_streak} streak` : '\u00a0'}
+                                {row &&
+                                showAverage &&
+                                averageLabel(row.avg_guesses) ? (
+                                    <>
+                                        <br />
+                                        {averageLabel(row.avg_guesses)} avg
+                                        guesses
+                                    </>
+                                ) : null}
                             </p>
                             {rank === 1 ? null : (
                                 <span
@@ -166,6 +193,8 @@ export default function LeaderboardPage() {
     const { profile, isGuest } = useAuth()
     const needsNickname = !profile?.nickname?.trim()
     const [tab, setTab] = useState<Tab>('daily')
+    const [classicList, setClassicList] =
+        useState<(typeof CLASSIC_LISTS)[number]['id']>('daily')
     const [difficulty, setDifficulty] = useState<InfiniteDifficulty>('normal')
     const [imageMode, setImageMode] = useState<ImageMode>('pixelated')
     const [rows, setRows] = useState<LeaderboardRow[]>([])
@@ -173,6 +202,7 @@ export default function LeaderboardPage() {
         rank: number | null
         nickname: string | null
         max_streak: number
+        avg_guesses: number | null
         eligible: boolean
         is_anonymous: boolean
     } | null>(null)
@@ -184,7 +214,11 @@ export default function LeaderboardPage() {
             try {
                 const data = await fetchLeaderboard(
                     tab,
-                    tab === 'infinite' ? difficulty : '',
+                    tab === 'infinite'
+                        ? difficulty
+                        : tab === 'classic'
+                          ? classicList
+                          : '',
                     tab === 'infinite' ? imageMode : ''
                 )
                 if (cancelled) return
@@ -204,7 +238,7 @@ export default function LeaderboardPage() {
         return () => {
             cancelled = true
         }
-    }, [tab, difficulty, imageMode])
+    }, [tab, difficulty, imageMode, classicList])
 
     return (
         <main className='mx-auto min-h-screen max-w-lg px-4 py-10'>
@@ -232,8 +266,9 @@ export default function LeaderboardPage() {
             </Link>
             <h1 className='mt-4 text-3xl font-bold uppercase'>Leaderboard</h1>
             <p className='mt-2 text-sm text-gray-500 dark:text-zinc-400'>
-                Highest streak. Guests and accounts without a nickname are left
-                off.
+                {tab === 'classic'
+                    ? 'Highest streak. Equal streaks go to the lower average guesses. Guests and accounts without a nickname are left off.'
+                    : 'Highest streak. Guests and accounts without a nickname are left off.'}
             </p>
             {needsNickname ? (
                 <p className='mt-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-3 text-sm text-amber-950 dark:border-amber-700 dark:bg-zinc-900 dark:text-amber-100'>
@@ -260,6 +295,24 @@ export default function LeaderboardPage() {
                         ))}
                     </div>
                 </OptionGroup>
+                {tab === 'classic' ? (
+                    <OptionGroup label='Mode:'>
+                        <div className='flex rounded-full bg-gray-100 p-1 dark:bg-zinc-800'>
+                            {CLASSIC_LISTS.map((option) => (
+                                <button
+                                    key={option.id}
+                                    type='button'
+                                    onClick={() => setClassicList(option.id)}
+                                    className={segmentClass(
+                                        classicList === option.id
+                                    )}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                        </div>
+                    </OptionGroup>
+                ) : null}
                 {tab === 'infinite' ? (
                     <>
                         <OptionGroup label='Difficulty:'>
@@ -298,7 +351,7 @@ export default function LeaderboardPage() {
                 ) : null}
             </div>
             {error ? <p className='mt-4 text-sm'>{error}</p> : null}
-            <TopThree rows={rows} />
+            <TopThree rows={rows} showAverage={tab === 'classic'} />
             {rows.length === 0 ? (
                 <p className='mt-6 text-sm text-gray-500'>
                     No ranked streaks yet.
@@ -335,8 +388,19 @@ export default function LeaderboardPage() {
                                         <YouBadge prominent={false} />
                                     ) : null}
                                 </span>
-                                <span className='font-medium'>
+                                <span className='shrink-0'>
                                     {row.max_streak}
+                                    {tab === 'classic' ? ' streak' : null}
+                                    {tab === 'classic' &&
+                                    averageLabel(row.avg_guesses) ? (
+                                        <span className='font-bold text-gray-500 dark:text-gray-100'>
+                                            {' '}
+                                            · {averageLabel(
+                                                row.avg_guesses
+                                            )}{' '}
+                                            avg guesses
+                                        </span>
+                                    ) : null}
                                 </span>
                             </li>
                         ))}
@@ -346,8 +410,18 @@ export default function LeaderboardPage() {
                 <p className='mt-6 rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-zinc-700'>
                     <span className='font-bold'>You:</span> {me.nickname ?? '?'}{' '}
                     · <span className='font-bold'>Best streak:</span>{' '}
-                    {me.max_streak} · <span className='font-bold'>Rank:</span>{' '}
-                    {me.rank ?? '?'}
+                    {me.max_streak}
+                    {tab === 'classic' && averageLabel(me.avg_guesses) ? (
+                        <>
+                            {' '}
+                            ·{' '}
+                            <span className='font-bold'>
+                                Average guesses:
+                            </span>{' '}
+                            {averageLabel(me.avg_guesses)}
+                        </>
+                    ) : null}{' '}
+                    · <span className='font-bold'>Rank:</span> {me.rank ?? '?'}
                     {me.nickname ? null : (
                         <>
                             {' '}

@@ -17,6 +17,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: new Date(),
         },
         {
+            url: `${baseUrl}/classic`,
+            lastModified: new Date(),
+        },
+        {
+            url: `${baseUrl}/classic/infinite`,
+            lastModified: new Date(),
+        },
+        {
             url: `${baseUrl}/challenge`,
             lastModified: new Date(),
         },

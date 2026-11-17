@@ -17,6 +17,7 @@ const MODES = [
     { mode: 'daily', label: 'Daily' },
     { mode: 'infinite', label: 'Infinite' },
     { mode: 'hangul', label: 'Hangul' },
+    { mode: 'classic', label: 'Classic' },
 ] as const
 
 type GameMode = (typeof MODES)[number]['mode']
@@ -32,9 +33,17 @@ function nicknameAvailableAt(
     return new Date(changed.getTime() + NICKNAME_COOLDOWN_MS)
 }
 
+function averageGuesses(row: StreakRow): string | null {
+    if (row.mode !== 'classic' || row.total_wins <= 0) return null
+    return ((row.win_guesses ?? 0) / row.total_wins).toFixed(1)
+}
+
 function rowTitle(row: StreakRow): string {
     const parts: string[] = []
-    if (row.difficulty && row.difficulty in DIFFICULTY_LABELS) {
+    if (row.mode === 'classic') {
+        if (row.difficulty === 'daily') parts.push('Daily')
+        if (row.difficulty === 'infinite') parts.push('Infinite')
+    } else if (row.difficulty && row.difficulty in DIFFICULTY_LABELS) {
         parts.push(DIFFICULTY_LABELS[row.difficulty as InfiniteDifficulty])
     }
     if (row.image_mode && row.image_mode in IMAGE_MODE_LABELS) {
@@ -229,6 +238,11 @@ export default function ProfilePage() {
                                         </div>
                                     </div>
                                 </div>
+                                {averageGuesses(row) ? (
+                                    <p className='mt-2 text-xs text-gray-500 dark:text-zinc-400'>
+                                        Average {averageGuesses(row)} guesses
+                                    </p>
+                                ) : null}
                                 {row.imported_max_streak > 0 ? (
                                     <p className='mt-2 text-xs text-gray-500 dark:text-zinc-400'>
                                         Imported best {row.imported_max_streak}
@@ -239,7 +253,7 @@ export default function ProfilePage() {
                     })}
                 </ul>
             )}
-            {singleRow ? (
+            {singleRow && mode !== 'classic' ? (
                 <div className='mt-6'>
                     <h2 className='text-xl font-bold uppercase'>Guesses</h2>
                     <ul className='mt-2 grid grid-cols-6 gap-2 text-center text-sm'>

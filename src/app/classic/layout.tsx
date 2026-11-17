@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-
 export const metadata: Metadata = {
     robots: {
         index: false,
@@ -11,10 +10,6 @@ export const metadata: Metadata = {
     },
 }
 
-export default function UnshuffledDailyLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+export default function ClassicLayout({ children }: { children: React.ReactNode }) {
     return children
 }
