@@ -25,6 +25,8 @@ export default function GuessGrid({
         )
     }
 
+    const rows = [...guesses].reverse()
+
     return (
         <div className='mt-6 min-w-0 overflow-x-auto pb-2'>
             <div
@@ -42,7 +44,7 @@ export default function GuessGrid({
                         {column.label}
                     </div>
                 ))}
-                {guesses.map((guess) => (
+                {rows.map((guess) => (
                     <GuessRow
                         key={guess.id}
                         guess={guess}
