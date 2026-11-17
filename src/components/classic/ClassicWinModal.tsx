@@ -39,7 +39,7 @@ export default function ClassicWinModal({
             heading.trim(),
             guessShareLines(guesses),
             gaveUp ? 'Revealed' : `${guesses.length} ${guesses.length === 1 ? 'guess' : 'guesses'}`,
-            mode === 'daily' ? 'https://idolguessr.fun/classic/daily' : 'https://idolguessr.fun/classic',
+            mode === 'daily' ? 'https://idolguessr.fun/classic' : 'https://idolguessr.fun/classic/infinite',
         ]
             .filter(Boolean)
             .join('\n')

@@ -244,11 +244,11 @@ export async function submitClassic(mode: ClassicMode, guessId: number) {
     }
 }
 
-export async function giveUpClassic() {
-    const { data, error } = await supabase.rpc('give_up_classic')
+export async function giveUpClassic(mode: ClassicMode) {
+    const { data, error } = await supabase.rpc('give_up_classic', { p_difficulty: mode })
     if (error || !isRecord(data)) throw new Error(error?.message ?? 'Could not reveal the answer')
-    remember('infinite', data)
-    noteClassicStreak('infinite', data.streak as StreakRow | null)
+    remember(mode, data)
+    noteClassicStreak(mode, data.streak as StreakRow | null)
     return answer(data.answer)
 }
 

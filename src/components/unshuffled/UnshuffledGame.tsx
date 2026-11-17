@@ -683,11 +683,11 @@ export default function UnshuffledGame({ mode }: { mode: UnshuffledMode }) {
                 onClose={() => setModeOpen(false)}
                 onDaily={() => {
                     setModeOpen(false)
-                    if (mode !== 'daily') router.push('/unshuffled/daily')
+                    if (mode !== 'daily') router.push('/unshuffled')
                 }}
                 onUnlimited={() => {
                     setModeOpen(false)
-                    if (mode !== 'infinite') router.push('/unshuffled')
+                    if (mode !== 'infinite') router.push('/unshuffled/infinite')
                 }}
             />
 

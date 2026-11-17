@@ -204,7 +204,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
         setBusy(true)
         setError('')
         try {
-            await giveUpClassic()
+            await giveUpClassic(mode)
             setConfirmGiveUp(false)
             setResultOpen(true)
         } catch (err) {
@@ -308,18 +308,17 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             newestId={newestId}
                             onRevealEnd={finishReveal}
                         />
-                        {mode === 'infinite' &&
-                            game?.status === 'in_progress' && (
-                                <div className='mt-4 flex justify-center'>
-                                    <button
-                                        type='button'
-                                        onClick={() => setConfirmGiveUp(true)}
-                                        className='cursor-pointer rounded-full bg-pink-600 px-4 py-2 font-bold text-white hover:bg-pink-700'
-                                    >
-                                        Give up
-                                    </button>
-                                </div>
-                            )}
+                        {game?.status === 'in_progress' && (
+                            <div className='mt-4 flex justify-center'>
+                                <button
+                                    type='button'
+                                    onClick={() => setConfirmGiveUp(true)}
+                                    className='cursor-pointer rounded-full bg-pink-600 px-4 py-2 font-bold text-white hover:bg-pink-700'
+                                >
+                                    Give up
+                                </button>
+                            </div>
+                        )}
                         {finished && !resultOpen && !revealHold && (
                             <div className='mt-4 flex justify-center'>
                                 <button

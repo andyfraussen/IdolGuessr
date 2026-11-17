@@ -666,16 +666,16 @@ export default function DailyClient({
                     router.push('/challenge', { scroll: false })
                 }}
                 onUnshuffled={() => {
-                    router.push('/unshuffled', { scroll: false })
+                    router.push('/unshuffled/infinite', { scroll: false })
                 }}
                 onUnshuffledDaily={() => {
-                    router.push('/unshuffled/daily', { scroll: false })
+                    router.push('/unshuffled', { scroll: false })
                 }}
                 onClassic={() => {
-                    router.push('/classic', { scroll: false })
+                    router.push('/classic/infinite', { scroll: false })
                 }}
                 onClassicDaily={() => {
-                    router.push('/classic/daily', { scroll: false })
+                    router.push('/classic', { scroll: false })
                 }}
             />
 

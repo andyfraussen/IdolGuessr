@@ -21,7 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: new Date(),
         },
         {
-            url: `${baseUrl}/classic/daily`,
+            url: `${baseUrl}/classic/infinite`,
             lastModified: new Date(),
         },
         {

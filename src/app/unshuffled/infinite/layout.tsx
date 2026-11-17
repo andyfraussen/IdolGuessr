@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     },
 }
 
-export default function UnshuffledDailyLayout({
+export default function UnshuffledInfiniteLayout({
     children,
 }: {
     children: React.ReactNode
