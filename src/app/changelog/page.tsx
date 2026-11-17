@@ -14,6 +14,14 @@ export const metadata: Metadata = {
 
 const entries: { date: string; changes: string[] }[] = [
     {
+        date: 'November 17, 2026',
+        changes: [
+            'Added Classic gamemode',
+            'Added Classic mode to leaderboard',
+            'Combined Pixelated mode into Visual'
+        ],
+    },
+    {
         date: 'November 10, 2026',
         changes: [
             'IdolGuessr 2.0 RELEASE',

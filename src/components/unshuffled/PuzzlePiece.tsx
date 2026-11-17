@@ -11,6 +11,13 @@ import { createPortal } from 'react-dom'
 
 const DRAG_THRESHOLD = 5
 const BLUR_BLEED = 0.35
+const PIECE_RADIUS = '0.75rem'
+
+function roundedClip(rounded: boolean): CSSProperties | undefined {
+    if (!rounded) return undefined
+    const clip = `inset(0 round ${PIECE_RADIUS})`
+    return { borderRadius: PIECE_RADIUS, clipPath: clip, WebkitClipPath: clip }
+}
 
 export function pieceBackground(
     piece: number,
@@ -189,7 +196,13 @@ export default function PuzzlePiece({
                 onDragStart={(event) => event.preventDefault()}
                 onPointerDown={onPointerDown}
             >
-                <BlurredArtwork piece={piece} artworkUrl={artworkUrl} />
+                <span
+                    aria-hidden
+                    className='pointer-events-none absolute inset-0 overflow-hidden'
+                    style={roundedClip(!onBoard)}
+                >
+                    <BlurredArtwork piece={piece} artworkUrl={artworkUrl} />
+                </span>
                 {locked && (
                     <span
                         aria-hidden
@@ -204,7 +217,7 @@ export default function PuzzlePiece({
             {ghost &&
                 createPortal(
                     <div
-                        className='pointer-events-none fixed z-[600] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl shadow-lg'
+                        className='pointer-events-none fixed z-[600] -translate-x-1/2 -translate-y-1/2'
                         style={{
                             left: ghost.x,
                             top: ghost.y,
@@ -212,7 +225,12 @@ export default function PuzzlePiece({
                             height: ghost.size,
                         }}
                     >
-                        <BlurredArtwork piece={piece} artworkUrl={artworkUrl} />
+                        <div
+                            className='h-full w-full overflow-hidden'
+                            style={roundedClip(true)}
+                        >
+                            <BlurredArtwork piece={piece} artworkUrl={artworkUrl} />
+                        </div>
                     </div>,
                     document.body
                 )}
