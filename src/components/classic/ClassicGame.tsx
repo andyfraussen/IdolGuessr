@@ -27,11 +27,15 @@ import {
 import { getClassicGame, subscribePlayer } from '@/lib/player'
 
 function friendly(error: unknown) {
-    const message = error instanceof Error ? error.message : 'Something went wrong'
-    if (message.includes('already_guessed')) return 'You already guessed that idol'
+    const message =
+        error instanceof Error ? error.message : 'Something went wrong'
+    if (message.includes('already_guessed'))
+        return 'You already guessed that idol'
     if (message.includes('no_idol')) return 'No idols match this filter yet'
-    if (message.includes('no_active_game')) return 'This round is already finished'
-    if (message.includes('round_in_progress')) return 'Finish this idol before starting another'
+    if (message.includes('no_active_game'))
+        return 'This round is already finished'
+    if (message.includes('round_in_progress'))
+        return 'Finish this idol before starting another'
     return message
 }
 
@@ -40,7 +44,9 @@ function formatCountdown(ms: number) {
     const hours = Math.floor(total / 3600)
     const minutes = Math.floor((total % 3600) / 60)
     const seconds = total % 60
-    return [hours, minutes, seconds].map((part) => part.toString().padStart(2, '0')).join(':')
+    return [hours, minutes, seconds]
+        .map((part) => part.toString().padStart(2, '0'))
+        .join(':')
 }
 
 function filterLabel(group: ClassicGroup) {
@@ -92,7 +98,9 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                     const daily = await loadClassicDaily()
                     if (cancel) return
                     setEndAt(daily.endAt)
-                    setServerOffset(new Date(daily.serverNow).getTime() - Date.now())
+                    setServerOffset(
+                        new Date(daily.serverNow).getTime() - Date.now()
+                    )
                 } else if (!getClassicGame('infinite')?.status) {
                     setFilterOpen(true)
                 }
@@ -114,10 +122,18 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
         return () => window.clearInterval(id)
     }, [mode, endAt])
 
-    const remaining = endAt ? new Date(endAt).getTime() - (now + serverOffset) : null
+    const remaining = endAt
+        ? new Date(endAt).getTime() - (now + serverOffset)
+        : null
 
     useEffect(() => {
-        if (mode !== 'daily' || remaining == null || remaining > 0 || rolled.current) return
+        if (
+            mode !== 'daily' ||
+            remaining == null ||
+            remaining > 0 ||
+            rolled.current
+        )
+            return
         rolled.current = true
         void loadClassicDaily()
             .then((daily) => {
@@ -125,7 +141,8 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 setEndAt(daily.endAt)
                 setServerOffset(offset)
                 setResultOpen(true)
-                rolled.current = new Date(daily.endAt).getTime() - (Date.now() + offset) <= 0
+                rolled.current =
+                    new Date(daily.endAt).getTime() - (Date.now() + offset) <= 0
             })
             .catch((err) => setError(friendly(err)))
     }, [mode, remaining])
@@ -151,7 +168,8 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
 
     useEffect(() => {
         return () => {
-            if (revealTimer.current != null) window.clearTimeout(revealTimer.current)
+            if (revealTimer.current != null)
+                window.clearTimeout(revealTimer.current)
         }
     }, [])
 
@@ -167,8 +185,12 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 holdResult.current = true
                 setRevealHold(true)
                 setResultOpen(false)
-                if (revealTimer.current != null) window.clearTimeout(revealTimer.current)
-                revealTimer.current = window.setTimeout(finishReveal, CLASSIC_REVEAL_MS + 50)
+                if (revealTimer.current != null)
+                    window.clearTimeout(revealTimer.current)
+                revealTimer.current = window.setTimeout(
+                    finishReveal,
+                    CLASSIC_REVEAL_MS + 50
+                )
             }
         } catch (err) {
             setError(friendly(err))
@@ -221,96 +243,121 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
     return (
         <div className='min-h-screen bg-white dark:bg-zinc-950'>
             <div className='mx-auto w-full sm:max-w-md'>
-            <GameHeader
-                timer={mode === 'daily' && countdown ? countdown : ''}
-                onShowAccount={() => setShowAccount(true)}
-                onShowInfo={() => setShowInfo(true)}
-                gameMode='classic'
-                onGameModeChange={() => {}}
-                showModeToggle={false}
-                onLogoClick={() => router.push('/')}
-            />
+                <GameHeader
+                    timer={mode === 'daily' && countdown ? countdown : ''}
+                    onShowAccount={() => setShowAccount(true)}
+                    onShowInfo={() => setShowInfo(true)}
+                    gameMode='classic'
+                    onGameModeChange={() => {}}
+                    showModeToggle={false}
+                    onLogoClick={() => router.push('/')}
+                />
             </div>
 
             <div className='mx-auto w-full max-w-7xl px-4 pb-6'>
-            <div className='mt-4 text-center'>
-                {mode === 'infinite' &&
-                    (game?.status === 'in_progress' ? (
-                        <p className='mt-3 text-sm font-semibold text-gray-500 dark:text-zinc-400'>{groupLabel}</p>
-                    ) : (
-                        <button
-                            type='button'
-                            onClick={() => setFilterOpen(true)}
-                            className='mt-3 cursor-pointer text-sm font-semibold text-gray-500 underline dark:text-zinc-400'
-                        >
-                            {groupLabel}
-                        </button>
-                    ))}
-            </div>
-
-            {loading ? (
-                <p className='mt-10 text-center text-sm text-gray-500 dark:text-zinc-400'>Loading...</p>
-            ) : (
-                <>
-                    <IdolSearchInput
-                        pool={suggestions}
-                        excludedIds={game?.guesses.map((guess) => guess.id) ?? []}
-                        disabled={busy || game?.status !== 'in_progress'}
-                        pending={busy && game?.status === 'in_progress'}
-                        onPick={(idol) => void pick(idol)}
-                    />
-                    <ColorLegend />
-                    {error && <p className='mt-3 text-center text-sm text-red-600'>{error}</p>}
-                    <GuessGrid
-                        guesses={game?.guesses ?? []}
-                        newestId={newestId}
-                        onRevealEnd={finishReveal}
-                    />
-                    {mode === 'infinite' && game?.status === 'in_progress' && (
-                        <div className='mt-4 flex justify-center'>
-                            {confirmGiveUp ? (
-                                <div className='flex items-center gap-2 text-sm'>
-                                    <span>Reveal the answer?</span>
-                                    <button
-                                        type='button'
-                                        onClick={() => void reveal()}
-                                        disabled={busy}
-                                        className='cursor-pointer rounded-full bg-red-600 px-3 py-1.5 font-semibold text-white'
-                                    >
-                                        Reveal
-                                    </button>
-                                    <button
-                                        type='button'
-                                        onClick={() => setConfirmGiveUp(false)}
-                                        className='cursor-pointer rounded-full bg-gray-200 px-3 py-1.5 dark:bg-zinc-800'
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            ) : (
-                                <button
-                                    type='button'
-                                    onClick={() => setConfirmGiveUp(true)}
-                                    className='cursor-pointer text-sm text-gray-500 underline dark:text-zinc-400'
-                                >
-                                    Give up
-                                </button>
-                            )}
-                        </div>
-                    )}
-                    {finished && !resultOpen && !revealHold && (
-                        <div className='mt-4 flex justify-center'>
+                <div className='mt-4 text-center'>
+                    {mode === 'infinite' &&
+                        (game?.status === 'in_progress' ? (
+                            <p className='mt-3 text-sm font-semibold text-gray-500 dark:text-zinc-400'>
+                                {groupLabel}
+                            </p>
+                        ) : (
                             <button
                                 type='button'
-                                onClick={() => setResultOpen(true)}
-                                className='cursor-pointer rounded-full bg-pink-600 hover:bg-pink-700 font-bold px-4 py-2 text-white'
+                                onClick={() => setFilterOpen(true)}
+                                className='mt-3 cursor-pointer text-sm font-semibold text-gray-500 underline dark:text-zinc-400'
                             >
-                                Result
+                                {groupLabel}
                             </button>
-                        </div>
+                        ))}
+                </div>
+
+                <div className='mx-auto mt-4 w-full max-w-md'>
+                    <div className='mb-3 flex justify-center'>
+                            <h1 className='font-bold text-white text-5xl'>
+                                Classic
+                            </h1>
+                    </div>
+                    {loading ? (
+                        <p className='mt-6 text-center text-sm text-gray-500 dark:text-zinc-400'>
+                            Loading...
+                        </p>
+                    ) : (
+                        <IdolSearchInput
+                            pool={suggestions}
+                            excludedIds={
+                                game?.guesses.map((guess) => guess.id) ?? []
+                            }
+                            disabled={busy || game?.status !== 'in_progress'}
+                            pending={busy && game?.status === 'in_progress'}
+                            onPick={(idol) => void pick(idol)}
+                        />
                     )}
-                </>
-            )}
+                </div>
+
+                {!loading && (
+                    <>
+                        <ColorLegend />
+                        {error && (
+                            <p className='mt-3 text-center text-sm text-red-600'>
+                                {error}
+                            </p>
+                        )}
+                        <GuessGrid
+                            guesses={game?.guesses ?? []}
+                            newestId={newestId}
+                            onRevealEnd={finishReveal}
+                        />
+                        {mode === 'infinite' &&
+                            game?.status === 'in_progress' && (
+                                <div className='mt-4 flex justify-center'>
+                                    {confirmGiveUp ? (
+                                        <div className='flex items-center gap-2 text-sm'>
+                                            <span>Reveal the answer?</span>
+                                            <button
+                                                type='button'
+                                                onClick={() => void reveal()}
+                                                disabled={busy}
+                                                className='cursor-pointer rounded-full bg-red-600 px-3 py-1.5 font-semibold text-white'
+                                            >
+                                                Reveal
+                                            </button>
+                                            <button
+                                                type='button'
+                                                onClick={() =>
+                                                    setConfirmGiveUp(false)
+                                                }
+                                                className='cursor-pointer rounded-full bg-gray-200 px-3 py-1.5 dark:bg-zinc-800'
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type='button'
+                                            onClick={() =>
+                                                setConfirmGiveUp(true)
+                                            }
+                                            className='cursor-pointer text-sm text-gray-500 underline dark:text-zinc-400'
+                                        >
+                                            Give up
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        {finished && !resultOpen && !revealHold && (
+                            <div className='mt-4 flex justify-center'>
+                                <button
+                                    type='button'
+                                    onClick={() => setResultOpen(true)}
+                                    className='cursor-pointer rounded-full bg-pink-600 px-4 py-2 font-bold text-white hover:bg-pink-700'
+                                >
+                                    Result
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
 
             <ClassicWinModal
@@ -322,7 +369,10 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 onClose={() => setResultOpen(false)}
                 onNext={() => void next()}
             />
-            <AccountModal isOpen={showAccount} onClose={() => setShowAccount(false)} />
+            <AccountModal
+                isOpen={showAccount}
+                onClose={() => setShowAccount(false)}
+            />
             <InfoModal
                 isOpen={showInfo}
                 onClose={() => setShowInfo(false)}
@@ -362,7 +412,8 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                         game?.status
                             ? () => {
                                   setFilterOpen(false)
-                                  if (finished && !holdResult.current) setResultOpen(true)
+                                  if (finished && !holdResult.current)
+                                      setResultOpen(true)
                               }
                             : undefined
                     }

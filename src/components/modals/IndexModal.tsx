@@ -95,7 +95,7 @@ export default function IndexModal({
 
     return (
         <div
-            className={`fixed inset-0 z-[500] flex items-center justify-center bg-[#e6e6e3] transition-opacity duration-300 dark:bg-zinc-950 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
+            className={`fixed inset-0 z-500 flex items-center justify-center bg-[#e6e6e3] transition-opacity duration-300 dark:bg-zinc-950 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
         >
             <div
                 className={`flex w-full max-w-2xl flex-col items-center px-6 text-center transition-transform duration-300 ${isClosing ? 'scale-95' : 'scale-100'}`}
@@ -122,7 +122,7 @@ export default function IndexModal({
                             </span>
                             <button
                                 onClick={() => setClassicOpen(true)}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border-2 border-pink-500 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border-2 border-pink-500 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <ClassicIcon />
                                 Classic
@@ -131,7 +131,7 @@ export default function IndexModal({
                         <div className='flex flex-row items-center justify-center'>
                             <button
                                 onClick={() => setVisualOpen(true)}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <VisualIcon />
                                 Visual
@@ -140,7 +140,7 @@ export default function IndexModal({
                         <div className='relative flex flex-row items-center justify-center'>
                             <button
                                 onClick={handleUnshuffled}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <UnshuffledIcon />
                                 Unshuffled
@@ -148,10 +148,10 @@ export default function IndexModal({
                         </div>
                     </div>
                     <div className='flex justify-center gap-3'>
-                    <div className='relative flex flex-row items-center justify-center'>
+                        <div className='relative flex flex-row items-center justify-center'>
                             <button
                                 onClick={handleHangul}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <HangulIcon />
                                 Hangul
@@ -160,7 +160,7 @@ export default function IndexModal({
                         <div className='relative flex flex-row items-center justify-center'>
                             <button
                                 onClick={handleChallenge}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <ChallengeIcon />
                                 Challenge
@@ -178,8 +178,8 @@ export default function IndexModal({
                         <span className='text-pink-600'>
                             {todayGuessCount.toLocaleString()}{' '}
                         </span>
-                        {todayGuessCount === 1 ? 'person' : 'people'} have guessed
-                        today&apos;s idol
+                        {todayGuessCount === 1 ? 'person' : 'people'} have
+                        guessed today&apos;s idol
                     </p>
                 )}
             </div>
@@ -252,7 +252,13 @@ function UnshuffledIcon() {
 
 function ClassicIcon() {
     return (
-        <svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='currentColor'>
+        <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='36'
+            height='36'
+            viewBox='0 0 24 24'
+            fill='currentColor'
+        >
             <rect x='3' y='3' width='7' height='7' rx='1.5' />
             <rect x='14' y='3' width='7' height='7' rx='1.5' opacity='0.45' />
             <rect x='3' y='14' width='7' height='7' rx='1.5' opacity='0.7' />

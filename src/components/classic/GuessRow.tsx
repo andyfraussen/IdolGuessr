@@ -21,7 +21,7 @@ export default function GuessRow({
 
     return (
         <div className='contents'>
-            <div className='relative h-[7.5rem] w-full overflow-hidden rounded-md border border-zinc-300 bg-zinc-900 dark:border-zinc-700'>
+            <div className='relative h-30 w-full overflow-hidden rounded-md border border-zinc-300 bg-zinc-900 dark:border-zinc-700'>
                 {portrait ? (
                     <Image
                         src={portrait}

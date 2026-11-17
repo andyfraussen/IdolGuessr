@@ -68,7 +68,7 @@ export default function IdolSearchInput({
     }
 
     return (
-        <div ref={root} className='relative mx-auto mt-6 w-full max-w-md'>
+        <div ref={root} className='relative w-full'>
             <input
                 ref={inputRef}
                 value={query}

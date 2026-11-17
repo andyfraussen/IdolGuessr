@@ -43,7 +43,7 @@ export default function GameHeader({
 
     return (
         <>
-            <div className='flex w-full flex-shrink-0 flex-col gap-3 p-4'>
+            <div className='flex w-full shrink-0 flex-col gap-3 p-4'>
                 <div className='flex w-full items-center justify-between'>
                     <div className='flex items-center justify-start'>
                         <button
@@ -65,7 +65,7 @@ export default function GameHeader({
 
                     {isChallenge && (
                         <div className='flex items-center justify-end'>
-                            <div className='rounded-full bg-gradient-to-r from-pink-500 to-pink-600 px-3.5 py-1.5'>
+                            <div className='rounded-full bg-linear-to-r from-pink-500 to-pink-600 px-3.5 py-1.5'>
                                 <h1 className='text-[12px] md:text-sm font-bold tracking-widest text-white uppercase'>
                                     Challenge
                                 </h1>
@@ -90,19 +90,9 @@ export default function GameHeader({
 
                     {gameMode === 'hangul' && (
                         <div className='flex items-center justify-end'>
-                            <div className='rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-3.5 py-1.5'>
+                            <div className='rounded-full bg-linear-to-r from-purple-500 to-pink-500 px-3.5 py-1.5'>
                                 <h1 className='text-sm font-bold tracking-widest text-white uppercase'>
                                     Hangul
-                                </h1>
-                            </div>
-                        </div>
-                    )}
-
-                    {gameMode === 'classic' && (
-                        <div className='flex items-center justify-end'>
-                            <div className='rounded-full bg-pink-600 px-3.5 py-1.5'>
-                                <h1 className='text-sm font-bold tracking-widest text-white uppercase'>
-                                    Classic
                                 </h1>
                             </div>
                         </div>

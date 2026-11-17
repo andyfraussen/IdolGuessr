@@ -72,7 +72,7 @@ export default function AttributeCell({
 
     return (
         <motion.div
-            className='relative h-[7.5rem] w-full'
+            className='relative h-30 w-full'
             style={{ transformStyle: 'preserve-3d' }}
             initial={animate ? { rotateY: 180 } : false}
             animate={{ rotateY: 0 }}
@@ -94,7 +94,7 @@ export default function AttributeCell({
                         }}
                     />
                 )}
-                <span className='relative z-10 min-w-0 leading-tight break-words'>
+                <span className='relative z-10 min-w-0 leading-tight wrap-break-word'>
                     {showNationality ? <NationalityValue value={value} /> : formatAttribute(column, value)}
                 </span>
             </div>
