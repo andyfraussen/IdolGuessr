@@ -1,5 +1,7 @@
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import ClassicModeModal from '@/components/classic/ClassicModeModal'
+import VisualModeModal from '@/components/modals/VisualModeModal'
 import UnshuffledModeModal from '@/components/unshuffled/UnshuffledModeModal'
 import { getDailyCount, getTodayDailyGuessCount } from '@/lib/supabase'
 
@@ -11,6 +13,8 @@ interface IndexModalProps {
     onChallenge?: () => void
     onUnshuffled?: () => void
     onUnshuffledDaily?: () => void
+    onClassic?: () => void
+    onClassicDaily?: () => void
 }
 
 export default function IndexModal({
@@ -21,15 +25,23 @@ export default function IndexModal({
     onChallenge,
     onUnshuffled,
     onUnshuffledDaily,
+    onClassic,
+    onClassicDaily,
 }: IndexModalProps) {
     const [isClosing, setIsClosing] = useState(false)
+    const [visualOpen, setVisualOpen] = useState(false)
     const [unshuffledOpen, setUnshuffledOpen] = useState(false)
+    const [classicOpen, setClassicOpen] = useState(false)
     const [dailyCount, setDailyCount] = useState<number | null>(null)
     const [todayGuessCount, setTodayGuessCount] = useState<number | null>(null)
     const [todayLabel, setTodayLabel] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!isOpen) setUnshuffledOpen(false)
+        if (!isOpen) {
+            setVisualOpen(false)
+            setUnshuffledOpen(false)
+            setClassicOpen(false)
+        }
     }, [isOpen])
 
     useEffect(() => {
@@ -83,7 +95,7 @@ export default function IndexModal({
 
     return (
         <div
-            className={`fixed inset-0 z-[500] flex items-center justify-center bg-[#e6e6e3] transition-opacity duration-300 dark:bg-zinc-950 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
+            className={`fixed inset-0 z-500 flex items-center justify-center bg-[#e6e6e3] transition-opacity duration-300 dark:bg-zinc-950 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
         >
             <div
                 className={`flex w-full max-w-2xl flex-col items-center px-6 text-center transition-transform duration-300 ${isClosing ? 'scale-95' : 'scale-100'}`}
@@ -91,7 +103,7 @@ export default function IndexModal({
                 <div className='mb-8 flex items-center justify-center'>
                     <Image
                         src='/images/idolguessr-logo.webp'
-                        alt='IdolGuessr Logo'
+                        alt='Classicr Logo'
                         width={350}
                         height={350}
                         className='h-auto w-auto dark:invert'
@@ -104,54 +116,54 @@ export default function IndexModal({
 
                 <div className='mt-8 flex flex-col items-center gap-3 md:flex-row'>
                     <div className='flex justify-center gap-3'>
-                        <div className='flex flex-row items-center justify-center'>
+                        <div className='relative flex flex-row items-center justify-center'>
+                            <span className='absolute -top-2 -right-2 z-10 rounded-full bg-pink-500 px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide text-white uppercase'>
+                                New
+                            </span>
                             <button
-                                onClick={handleDaily}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                onClick={() => setClassicOpen(true)}
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border-2 border-pink-500 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
-                                <DailyIcon />
-                                Daily
+                                <ClassicIcon />
+                                Classic
                             </button>
                         </div>
                         <div className='flex flex-row items-center justify-center'>
                             <button
-                                onClick={handleInfinite}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                onClick={() => setVisualOpen(true)}
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
-                                <InfiniteIcon />
-                                Infinite
+                                <VisualIcon />
+                                Visual
                             </button>
                         </div>
                         <div className='relative flex flex-row items-center justify-center'>
                             <button
-                                onClick={handleHangul}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                onClick={handleUnshuffled}
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
-                                <HangulIcon />
-                                Hangul
+                                <UnshuffledIcon />
+                                Unshuffled
                             </button>
                         </div>
                     </div>
                     <div className='flex justify-center gap-3'>
                         <div className='relative flex flex-row items-center justify-center'>
                             <button
-                                onClick={handleChallenge}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                onClick={handleHangul}
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
-                                <ChallengeIcon />
-                                Challenge
+                                <HangulIcon />
+                                Hangul
                             </button>
                         </div>
                         <div className='relative flex flex-row items-center justify-center'>
-                            <span className='absolute -top-2 -right-2 z-10 rounded-full bg-pink-500 px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide text-white uppercase'>
-                                New
-                            </span>
                             <button
-                                onClick={handleUnshuffled}
-                                className='flex w-[90px] cursor-pointer flex-col items-center justify-center border-2 border-pink-500 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                onClick={handleChallenge}
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
-                                <UnshuffledIcon />
-                                Unshuffled
+                                <ChallengeIcon />
+                                Challenge
                             </button>
                         </div>
                     </div>
@@ -166,34 +178,43 @@ export default function IndexModal({
                         <span className='text-pink-600'>
                             {todayGuessCount.toLocaleString()}{' '}
                         </span>
-                        {todayGuessCount === 1 ? 'person' : 'people'} guessed
-                        today&apos;s idol already
+                        {todayGuessCount === 1 ? 'person' : 'people'} have
+                        guessed today&apos;s idol
                     </p>
                 )}
             </div>
+            <VisualModeModal
+                open={visualOpen}
+                onClose={() => setVisualOpen(false)}
+                onDaily={handleDaily}
+                onInfinite={handleInfinite}
+            />
             <UnshuffledModeModal
                 open={unshuffledOpen}
                 onClose={() => setUnshuffledOpen(false)}
                 onDaily={() => onUnshuffledDaily?.()}
                 onUnlimited={() => onUnshuffled?.()}
             />
+            <ClassicModeModal
+                open={classicOpen}
+                onClose={() => setClassicOpen(false)}
+                onDaily={() => onClassicDaily?.()}
+                onUnlimited={() => onClassic?.()}
+            />
         </div>
     )
 }
 
-function DailyIcon() {
+function VisualIcon() {
     return (
-        <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='36'
-            height='36'
-            viewBox='0 0 24 24'
-        >
-            <path
-                fill='currentColor'
-                d='M7.195 2.845a.75.75 0 0 0-1.467 0c-.232 1.096-.55 1.835-.99 2.361c-.429.516-1.029.893-1.95 1.166a.75.75 0 0 0 0 1.438c.885.262 1.48.617 1.916 1.125c.444.516.782 1.26 1.024 2.402a.75.75 0 0 0 1.467 0c.242-1.143.58-1.886 1.024-2.402c.436-.508 1.03-.863 1.917-1.125a.75.75 0 0 0 0-1.438c-.886-.262-1.481-.617-1.917-1.125c-.444-.516-.782-1.26-1.024-2.402m8.303 3.251a.75.75 0 0 0-1.458 0c-.554 2.292-1.141 3.674-1.972 4.638c-.82.952-1.947 1.576-3.77 2.192a.75.75 0 0 0 0 1.421c1.904.643 3.046 1.322 3.852 2.292c.819.986 1.362 2.355 1.89 4.537a.75.75 0 0 0 1.458 0c.554-2.291 1.142-3.673 1.972-4.637c.82-.952 1.947-1.576 3.77-2.192a.75.75 0 0 0 0-1.421c-1.907-.644-3.047-1.32-3.852-2.29c-.818-.984-1.36-2.352-1.89-4.54'
-            />
-        </svg>
+        <span
+            aria-hidden
+            className='inline-block h-9 w-9 bg-current mask-contain mask-center mask-no-repeat'
+            style={{
+                maskImage: 'url(/icons/image.svg)',
+                WebkitMaskImage: 'url(/icons/image.svg)',
+            }}
+        />
     )
 }
 
@@ -213,22 +234,6 @@ function HangulIcon() {
     )
 }
 
-function InfiniteIcon() {
-    return (
-        <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='36'
-            height='36'
-            viewBox='0 0 512 512'
-        >
-            <path
-                fill='currentColor'
-                d='M382 136c-40.87 0-73.46 20.53-93.6 37.76l-.71.61l-11.47 12.47l25.32 41.61l18.74-18.79C339.89 193.1 361.78 184 382 184c40.8 0 74 32.3 74 72s-33.2 72-74 72c-62 0-104.14-81.95-104.56-82.78C275 240.29 221.56 136 130 136C62.73 136 8 189.83 8 256s54.73 120 122 120c32.95 0 65.38-13.11 93.79-37.92l.61-.54l11.38-12.38l-25.33-41.61l-18.83 18.88C172 319.4 151.26 328 130 328c-40.8 0-74-32.3-74-72s33.2-72 74-72c62 0 104.14 81.95 104.56 82.78C237 271.71 290.44 376 382 376c67.27 0 122-53.83 122-120s-54.73-120-122-120'
-            />
-        </svg>
-    )
-}
-
 function UnshuffledIcon() {
     return (
         <svg
@@ -241,6 +246,23 @@ function UnshuffledIcon() {
                 fill='currentColor'
                 d='M14 20v-2h2.6l-3.175-3.175L14.85 13.4L18 16.55V14h2v6zm-8.6 0L4 18.6L16.6 6H14V4h6v6h-2V7.4zm3.775-9.425L4 5.4L5.4 4l5.175 5.175z'
             />
+        </svg>
+    )
+}
+
+function ClassicIcon() {
+    return (
+        <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='36'
+            height='36'
+            viewBox='0 0 24 24'
+            fill='currentColor'
+        >
+            <rect x='3' y='3' width='7' height='7' rx='1.5' />
+            <rect x='14' y='3' width='7' height='7' rx='1.5' opacity='0.45' />
+            <rect x='3' y='14' width='7' height='7' rx='1.5' opacity='0.7' />
+            <rect x='14' y='14' width='7' height='7' rx='1.5' opacity='0.3' />
         </svg>
     )
 }

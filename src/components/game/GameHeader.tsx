@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import FilterModal from '../filters/FilterModal'
+import SettingsModal from '../modals/SettingsModal'
 import { useFeedbackUnread } from '@/hooks/useFeedbackUnread'
 import type { ImageMode, InfiniteDifficulty } from '@/utils/difficulty'
 
@@ -8,7 +9,7 @@ interface GameHeaderProps {
     timer: string
     onShowAccount?: () => void
     onShowInfo?: () => void
-    gameMode: 'daily' | 'unlimited' | 'hangul'
+    gameMode: 'daily' | 'unlimited' | 'hangul' | 'classic'
     onGameModeChange: (
         mode: 'daily' | 'unlimited',
         filter?: 'boy-group' | 'girl-group' | 'both',
@@ -37,11 +38,12 @@ export default function GameHeader({
     isChallenge = false,
 }: GameHeaderProps) {
     const [showFilterModal, setShowFilterModal] = useState(false)
+    const [showSettings, setShowSettings] = useState(false)
     const feedbackUnread = useFeedbackUnread()
 
     return (
         <>
-            <div className='flex w-full flex-shrink-0 flex-col gap-3 p-4'>
+            <div className='flex w-full shrink-0 flex-col gap-3 p-4'>
                 <div className='flex w-full items-center justify-between'>
                     <div className='flex items-center justify-start'>
                         <button
@@ -63,7 +65,7 @@ export default function GameHeader({
 
                     {isChallenge && (
                         <div className='flex items-center justify-end'>
-                            <div className='rounded-full bg-gradient-to-r from-pink-500 to-pink-600 px-3.5 py-1.5'>
+                            <div className='rounded-full bg-linear-to-r from-pink-500 to-pink-600 px-3.5 py-1.5'>
                                 <h1 className='text-[12px] md:text-sm font-bold tracking-widest text-white uppercase'>
                                     Challenge
                                 </h1>
@@ -88,7 +90,7 @@ export default function GameHeader({
 
                     {gameMode === 'hangul' && (
                         <div className='flex items-center justify-end'>
-                            <div className='rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-3.5 py-1.5'>
+                            <div className='rounded-full bg-linear-to-r from-purple-500 to-pink-500 px-3.5 py-1.5'>
                                 <h1 className='text-sm font-bold tracking-widest text-white uppercase'>
                                     Hangul
                                 </h1>
@@ -97,7 +99,7 @@ export default function GameHeader({
                     )}
 
                     <div className='flex items-center gap-2'>
-                        {gameMode === 'daily' && (
+                        {(gameMode === 'daily' || (gameMode === 'classic' && timer)) && (
                             <div className='flex flex-col items-end text-right'>
                                 <div className='text-xs font-medium text-gray-400 dark:text-zinc-500'>
                                     NEXT IDOL
@@ -151,6 +153,20 @@ export default function GameHeader({
                             </div>
                         )}
                    
+                        <button
+                            onClick={() => setShowSettings(true)}
+                            className='flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg bg-gray-100 transition-colors hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                            aria-label='Settings'
+                        >
+                            <Image
+                                width={24}
+                                height={24}
+                                src='/icons/settings.svg'
+                                alt=''
+                                className='h-6 w-6 dark:invert'
+                            />
+                        </button>
+
                         {onShowAccount && (
                             <button
                                 onClick={onShowAccount}
@@ -191,6 +207,11 @@ export default function GameHeader({
                 </div>
             </div>
 
+            <SettingsModal
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+            />
+
             {showModeToggle && (
                 <FilterModal
                     isOpen={showFilterModal}
@@ -211,7 +232,7 @@ export default function GameHeader({
     )
 }
 
-function GameModeIcon({ gameMode }: { gameMode: 'daily' | 'unlimited' | 'hangul' }) {
+function GameModeIcon({ gameMode }: { gameMode: 'daily' | 'unlimited' | 'hangul' | 'classic' }) {
     if (gameMode === 'unlimited' || gameMode === 'hangul') {
         return (
             <svg
