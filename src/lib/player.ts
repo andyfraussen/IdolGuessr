@@ -34,6 +34,7 @@ export interface StreakRow {
     max_streak: number
     total_games: number
     total_wins: number
+    win_guesses: number
     guess_distribution: Record<string, number>
     last_played_on: string | null
     imported_max_streak: number
@@ -429,6 +430,21 @@ export function applyClassicGame(
     }
     if (index >= 0) overview.active_games[index] = next
     else overview.active_games = [...overview.active_games, next]
+    emit()
+}
+
+export function noteClassicStreak(difficulty: 'daily' | 'infinite', streak: StreakRow | null) {
+    if (!streak) return
+    applyStreak({
+        ...streak,
+        mode: 'classic',
+        difficulty,
+        image_mode: '',
+        win_guesses: streak.win_guesses ?? 0,
+        imported_max_streak: streak.imported_max_streak ?? 0,
+        leaderboard_eligible: streak.leaderboard_eligible ?? true,
+        guess_distribution: streak.guess_distribution ?? {},
+    })
     emit()
 }
 
@@ -887,8 +903,22 @@ export async function fetchLeaderboard(mode: string, difficulty = '', imageMode 
     })
     if (error) throw error
     return data as {
-        rows: Array<{ rank: number; nickname: string; avatar_url: string | null; max_streak: number; is_me: boolean }>
-        me: { rank: number | null; nickname: string | null; max_streak: number; eligible: boolean; is_anonymous: boolean } | null
+        rows: Array<{
+            rank: number
+            nickname: string
+            avatar_url: string | null
+            max_streak: number
+            avg_guesses: number | null
+            is_me: boolean
+        }>
+        me: {
+            rank: number | null
+            nickname: string | null
+            max_streak: number
+            avg_guesses: number | null
+            eligible: boolean
+            is_anonymous: boolean
+        } | null
     }
 }
 

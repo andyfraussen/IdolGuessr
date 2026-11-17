@@ -1,5 +1,5 @@
 import { getImageUrl, supabase } from '@/lib/supabase'
-import { applyClassicGame, getClassicGame } from '@/lib/player'
+import { applyClassicGame, getClassicGame, noteClassicStreak, type StreakRow } from '@/lib/player'
 
 export type ClassicMode = 'daily' | 'infinite'
 export type ClassicStatus = 'in_progress' | 'won' | 'gave_up'
@@ -236,6 +236,7 @@ export async function submitClassic(mode: ClassicMode, guessId: number) {
     })
     if (error || !isRecord(data)) throw new Error(error?.message ?? 'Could not submit that guess')
     remember(mode, data)
+    if (data.solved === true) noteClassicStreak(mode, data.streak as StreakRow | null)
     return {
         solved: data.solved === true,
         guesses: feedbackList(data.guesses),
@@ -247,6 +248,7 @@ export async function giveUpClassic() {
     const { data, error } = await supabase.rpc('give_up_classic')
     if (error || !isRecord(data)) throw new Error(error?.message ?? 'Could not reveal the answer')
     remember('infinite', data)
+    noteClassicStreak('infinite', data.streak as StreakRow | null)
     return answer(data.answer)
 }
 
