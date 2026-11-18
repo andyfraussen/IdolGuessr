@@ -15,6 +15,7 @@ import WinModal from '@/components/modals/WinModal'
 import {
     getImageUrl,
     getDailyImageByDate,
+    getTodayDailyGuessCount,
     type CurrentDaily,
     type HistoryDailyImage,
 } from '@/lib/supabase'
@@ -137,6 +138,22 @@ export default function DailyClient({
     } = useGameController(initialDaily)
 
     const [inputMode, , inputModeReady] = useInputMode()
+    const [todayGuessCount, setTodayGuessCount] = useState<number | null>(null)
+
+    useEffect(() => {
+        if (gameMode !== 'daily') return
+        let cancel = false
+        getTodayDailyGuessCount()
+            .then((count) => {
+                if (!cancel) setTodayGuessCount(count)
+            })
+            .catch(() => {
+                if (!cancel) setTodayGuessCount(0)
+            })
+        return () => {
+            cancel = true
+        }
+    }, [gameMode])
 
     const isInHistoryMode = historyDate !== null && historyImage !== null
 
@@ -440,7 +457,7 @@ export default function DailyClient({
                 {gameMode === 'daily' &&
                     !isInHistoryMode &&
                     dailyImage?.chosen_by?.trim() && (
-                        <p className='text-md font-bold -mt-2 px-4 pb-2 text-center'>
+                        <p className='text-md font-bold px-4 text-center'>
                             Today&apos;s idol was chosen by{' '}
                             <span className='inline-block rounded-full bg-pink-600/90 px-2 py-1 dark:bg-pink-600/90'>
                                 <ChosenByName
@@ -448,6 +465,18 @@ export default function DailyClient({
                                     url={dailyImage.chosen_by_url}
                                 />
                             </span>
+                        </p>
+                    )}
+
+                {gameMode === 'daily' &&
+                    !isInHistoryMode &&
+                    todayGuessCount !== null && (
+                        <p className='text-center text-sm italic pb-2'>
+                            <span className='text-pink-600'>
+                                {todayGuessCount.toLocaleString()}{' '}
+                            </span>
+                            {todayGuessCount === 1 ? 'person' : 'people'} have
+                            guessed today&apos;s idol
                         </p>
                     )}
 

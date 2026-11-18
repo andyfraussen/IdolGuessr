@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import ClassicModeModal from '@/components/classic/ClassicModeModal'
 import VisualModeModal from '@/components/modals/VisualModeModal'
 import UnshuffledModeModal from '@/components/unshuffled/UnshuffledModeModal'
-import { getDailyCount, getTodayDailyGuessCount } from '@/lib/supabase'
+import { getDailyCount } from '@/lib/supabase'
 
 interface IndexModalProps {
     isOpen: boolean
@@ -33,7 +33,6 @@ export default function IndexModal({
     const [unshuffledOpen, setUnshuffledOpen] = useState(false)
     const [classicOpen, setClassicOpen] = useState(false)
     const [dailyCount, setDailyCount] = useState<number | null>(null)
-    const [todayGuessCount, setTodayGuessCount] = useState<number | null>(null)
     const [todayLabel, setTodayLabel] = useState<string | null>(null)
 
     useEffect(() => {
@@ -60,9 +59,6 @@ export default function IndexModal({
             getDailyCount()
                 .then(setDailyCount)
                 .catch(() => setDailyCount(0))
-            getTodayDailyGuessCount()
-                .then(setTodayGuessCount)
-                .catch(() => setTodayGuessCount(0))
         }
     }, [isOpen])
 
@@ -173,15 +169,6 @@ export default function IndexModal({
                     {todayLabel ?? '\u00A0'}
                 </h1>
                 <p className='text-lg'>Daily #{dailyCount ?? ''}</p>
-                {todayGuessCount !== null && (
-                    <p className='text-base italic'>
-                        <span className='text-pink-600'>
-                            {todayGuessCount.toLocaleString()}{' '}
-                        </span>
-                        {todayGuessCount === 1 ? 'person' : 'people'} have
-                        guessed today&apos;s idol
-                    </p>
-                )}
             </div>
             <VisualModeModal
                 open={visualOpen}
