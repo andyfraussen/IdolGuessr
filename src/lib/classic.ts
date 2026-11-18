@@ -64,6 +64,7 @@ export interface ClassicDaily {
     dailyId: number
     endAt: string
     serverNow: string
+    winCount: number
     game: ClassicGame
 }
 
@@ -207,11 +208,13 @@ export async function loadClassicDaily(): Promise<ClassicDaily> {
     const { data, error } = await supabase.rpc('get_current_classic_daily')
     if (error || !isRecord(data)) throw new Error(error?.message ?? 'Could not load today')
     const dailyId = typeof data.daily_id === 'number' ? data.daily_id : Number(data.daily_id)
+    const winCount = typeof data.win_count === 'number' ? data.win_count : Number(data.win_count)
     remember('daily', data, { dailyId })
     return {
         dailyId,
         endAt: typeof data.end_at === 'string' ? data.end_at : '',
         serverNow: typeof data.server_now === 'string' ? data.server_now : new Date().toISOString(),
+        winCount: Number.isFinite(winCount) ? winCount : 0,
         game: getClassicGame('daily') ?? {
             guesses: [],
             status: 'in_progress',

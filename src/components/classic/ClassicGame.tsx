@@ -64,6 +64,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
     const [error, setError] = useState('')
     const [newestId, setNewestId] = useState<number | null>(null)
     const [endAt, setEndAt] = useState<string | null>(null)
+    const [winCount, setWinCount] = useState<number | null>(null)
     const [serverOffset, setServerOffset] = useState(0)
     const [now, setNow] = useState(() => Date.now())
     const [resultOpen, setResultOpen] = useState(true)
@@ -101,6 +102,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                     setServerOffset(
                         new Date(daily.serverNow).getTime() - Date.now()
                     )
+                    setWinCount(daily.winCount)
                 } else if (!getClassicGame('infinite')?.status) {
                     setFilterOpen(true)
                 }
@@ -140,6 +142,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 const offset = new Date(daily.serverNow).getTime() - Date.now()
                 setEndAt(daily.endAt)
                 setServerOffset(offset)
+                setWinCount(daily.winCount)
                 setResultOpen(true)
                 rolled.current =
                     new Date(daily.endAt).getTime() - (Date.now() + offset) <= 0
@@ -182,6 +185,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
             setNewestId(idol.id)
             const result = await submitClassic(mode, idol.id)
             if (result.solved) {
+                if (mode === 'daily') setWinCount((count) => (count ?? 0) + 1)
                 holdResult.current = true
                 setRevealHold(true)
                 setResultOpen(false)
@@ -255,28 +259,34 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
             </div>
 
             <div className='mx-auto w-full max-w-7xl px-4 pb-6'>
-                <div className='mt-4 text-center'>
-                    {mode === 'infinite' &&
-                        (game?.status === 'in_progress' ? (
-                            <p className='mt-3 text-sm font-semibold text-gray-500 dark:text-zinc-400'>
-                                {groupLabel}
-                            </p>
-                        ) : (
-                            <button
-                                type='button'
-                                onClick={() => setFilterOpen(true)}
-                                className='mt-3 cursor-pointer text-sm font-semibold text-gray-500 underline dark:text-zinc-400'
-                            >
-                                {groupLabel}
-                            </button>
-                        ))}
-                </div>
-
                 <div className='mx-auto mt-4 w-full max-w-md'>
-                    <div className='mb-3 flex justify-center'>
+                    <div className='mb-3 text-center'>
                         <h1 className='text-5xl font-bold text-white'>
                             Classic
                         </h1>
+                        {mode === 'daily' && winCount !== null && (
+                            <p className='mt-2 text-sm italic text-gray-500 dark:text-zinc-400'>
+                                <span className='font-semibold text-pink-600 not-italic'>
+                                    {winCount.toLocaleString()}
+                                </span>{' '}
+                                {winCount === 1 ? 'person has' : 'people have'}{' '}
+                                guessed today&apos;s idol
+                            </p>
+                        )}
+                        {mode === 'infinite' &&
+                            (game?.status === 'in_progress' ? (
+                                <p className='mt-2 text-sm font-semibold text-gray-500 dark:text-zinc-400'>
+                                    {groupLabel}
+                                </p>
+                            ) : (
+                                <button
+                                    type='button'
+                                    onClick={() => setFilterOpen(true)}
+                                    className='mt-2 cursor-pointer text-sm font-semibold text-gray-500 underline dark:text-zinc-400'
+                                >
+                                    {groupLabel}
+                                </button>
+                            ))}
                     </div>
                     {loading ? (
                         <p className='mt-6 text-center text-sm text-gray-500 dark:text-zinc-400'>

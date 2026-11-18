@@ -18,7 +18,7 @@ export default function ColorLegend() {
         <div className={`mt-6 ${spaceGrotesk.className}`}>
             <div className='mt-3 flex flex-wrap items-end justify-center gap-4'>
                 {ITEMS.map((item) => (
-                    <div key={item.label} className='flex w-16 flex-col items-center gap-1'>
+                    <div key={item.label} className='flex w-12 flex-col items-center gap-1'>
                         <div className={`flex h-9 w-9 items-center justify-center overflow-hidden rounded text-black dark:text-white ${item.className}`}>
                             {item.direction && (
                                 <span
