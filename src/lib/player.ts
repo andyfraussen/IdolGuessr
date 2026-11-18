@@ -298,6 +298,7 @@ export function getUnlimitedGame(difficulty: InfiniteDifficulty, mode: ImageMode
     return {
         groupType: idol.group_type ?? '',
         imgBucket: idol.img_bucket ?? '',
+        idolId: idol.id,
         groupCategory: idol.group_category,
         base64Group: idol.base64_group,
         base64Idol: idol.base64_idol,
@@ -631,9 +632,9 @@ export async function judgeRoundGuess(input: {
     try {
         const streakBefore = findStreak(modeForStreak, difficultyForStreak, imageModeForStreak)?.current_streak ?? 0
         const focusKey =
-            input.pool === 'hangul' && input.idolId && input.idolId > 0
+            input.idolId && input.idolId > 0
                 ? String(input.idolId)
-                : input.imgBucket || (input.idolId && input.idolId > 0 ? String(input.idolId) : '')
+                : input.imgBucket || ''
         if (focusKey) {
             const focused = await focusIssuedIdol(input.pool, focusKey, input.difficulty, input.imageMode)
             if (!focused) return null

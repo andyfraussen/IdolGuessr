@@ -205,7 +205,7 @@ export default function GameImage({
         )
 
     return (
-        <div className='relative mb-3 min-h-0 w-full flex-1 sm:mx-auto sm:max-w-md'>
+        <div className='relative mb-3 min-h-0 w-full flex-1 select-none sm:mx-auto sm:max-w-md'>
             <div className='relative h-full w-full overflow-hidden rounded-lg'>
                 {isLoading || !hasValidData ? (
                     <div className='flex h-full w-full items-center justify-center'>
@@ -213,7 +213,7 @@ export default function GameImage({
                     </div>
                 ) : dailyImage && isZoom ? (
                     <div
-                        className='absolute inset-0 transition-transform duration-[1500ms] ease-out'
+                        className='absolute inset-0 transition-transform duration-1500 ease-out'
                         style={{
                             transform: isEntering
                                 ? 'translateY(-100%)'
@@ -241,7 +241,7 @@ export default function GameImage({
                     </div>
                 ) : dailyImage ? (
                     <div
-                        className='absolute inset-0 transition-transform duration-[1500ms] ease-out'
+                        className='absolute inset-0 transition-transform duration-1500 ease-out'
                         style={{
                             transform: isEntering
                                 ? 'translateY(-100%)'
@@ -394,7 +394,7 @@ export default function GameImage({
                         />
                     )}
 
-                <div className='pointer-events-none absolute inset-x-0 bottom-2 z-[200] flex justify-center px-2 md:bottom-4 md:px-10'>
+                <div className='pointer-events-none absolute inset-x-0 bottom-2 z-200 flex justify-center px-2 md:bottom-4 md:px-10'>
                     <div className='inline-flex max-w-full items-center gap-2 rounded-md border border-gray-300/60 dark:border-zinc-600/60 bg-zinc-900/70 px-6 py-2.5 md:h-12 md:gap-4 md:px-4 md:py-0'>
                         <h1
                             className={`${proximanovaBold.className} text-xl leading-none text-white uppercase`}
@@ -462,8 +462,9 @@ function SlotImage({
             alt='Daily idol'
             width={600}
             height={600}
-            className={className}
+            className={`${className} select-none`}
             style={style}
+            draggable={false}
             unoptimized
             priority={priority}
             loading={priority ? undefined : 'eager'}

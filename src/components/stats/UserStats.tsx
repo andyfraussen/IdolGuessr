@@ -54,6 +54,7 @@ export interface UnlimitedStats {
 export interface UnlimitedGameState {
     groupType: string
     imgBucket: string
+    idolId?: number
     groupCategory?: string
     base64Group?: string
     base64Idol?: string
@@ -258,8 +259,11 @@ export function useUnlimitedStats(difficulty: InfiniteDifficulty = 'normal', mod
     }, [difficulty, mode])
 
     const saveGameState = useCallback((gameState: UnlimitedGameState, forDifficulty?: InfiniteDifficulty, forMode?: ImageMode) => {
-        if (!gameState.imgBucket) return
-        void focusIssuedIdol('unlimited', gameState.imgBucket, forDifficulty ?? difficulty, forMode ?? mode)
+        const key = gameState.idolId && gameState.idolId > 0
+            ? String(gameState.idolId)
+            : gameState.imgBucket
+        if (!key) return
+        void focusIssuedIdol('unlimited', key, forDifficulty ?? difficulty, forMode ?? mode)
     }, [difficulty, mode])
 
     const loadGameState = useCallback((forDifficulty?: InfiniteDifficulty, forMode?: ImageMode): UnlimitedGameState | null => {

@@ -185,7 +185,7 @@ export default function IdolTextInput({
           : 'bg-gray-200 dark:bg-zinc-800'
 
     return (
-        <div className={`relative w-full flex-shrink-0 ${className}`}>
+        <div className={`relative w-full shrink-0 ${className}`}>
             <div
                 className={`flex items-center rounded-md border-2 transition-colors ${bgClass} ${borderClass} ${
                     isAnimating && !gameWon ? 'shake-animation' : ''
@@ -227,6 +227,10 @@ export default function IdolTextInput({
                     className={`w-full bg-transparent px-4 py-3 text-lg font-bold tracking-wider outline-none ${
                         showingLoss ? 'normal-case' : 'uppercase'
                     } ${
+                        feedback || showingCorrect || showingLoss
+                            ? 'caret-transparent'
+                            : ''
+                    } ${
                         showingCorrect || showingLoss
                             ? 'text-white disabled:opacity-100'
                             : feedback
@@ -253,7 +257,7 @@ export default function IdolTextInput({
                     ref={listRef}
                     id={LISTBOX_ID}
                     role='listbox'
-                    className='absolute bottom-full left-0 z-[250] mb-2 max-h-60 w-full touch-pan-y overflow-y-auto overscroll-contain rounded-md border border-gray-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900'
+                    className='absolute bottom-full left-0 z-250 mb-2 max-h-60 w-full touch-pan-y overflow-y-auto overscroll-contain rounded-md border border-gray-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900'
                 >
                     {suggestions.map((name, index) => (
                         <li

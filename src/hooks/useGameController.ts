@@ -328,7 +328,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                     : undefined
 
                 const savedImage: DailyRow = {
-                    id: 0,
+                    id: savedGameState.idolId && savedGameState.idolId > 0 ? savedGameState.idolId : 0,
                     name: decodedName,
                     alt_name: decodedAltName,
                     group_type: savedGameState.groupType,
@@ -519,6 +519,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                 unlimitedStats.saveGameState({
                     groupType: dailyImage.group_type || '',
                     imgBucket: dailyImage.img_bucket,
+                    idolId: dailyImage.id,
                     groupCategory: dailyImage.group_category,
                     base64Group: dailyImage.base64_group,
                     base64Idol: dailyImage.base64_idol,
@@ -719,6 +720,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
             ) => ({
                 groupType: row.group_type || '',
                 imgBucket: row.img_bucket,
+                idolId: row.id,
                 groupCategory: row.group_category,
                 base64Group: row.base64_group,
                 base64Idol: row.base64_idol,
@@ -960,6 +962,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                                   pool: 'unlimited',
                                   guess: normalizedGuess,
                                   imgBucket: dailyImage?.img_bucket,
+                                  idolId: dailyImage?.id,
                                   difficulty,
                                   imageMode,
                               })
@@ -1279,7 +1282,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                         ? decodeIdolName(savedGameState.encodedAltName)
                         : undefined
                     const savedImage: DailyRow = {
-                        id: 0,
+                        id: savedGameState.idolId && savedGameState.idolId > 0 ? savedGameState.idolId : 0,
                         name: decodedName,
                         alt_name: decodedAltName,
                         group_type: savedGameState.groupType,
@@ -1451,6 +1454,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
             unlimitedStats.saveGameState({
                 groupType: dailyImage.group_type || '',
                 imgBucket: dailyImage.img_bucket,
+                idolId: dailyImage.id,
                 groupCategory: dailyImage.group_category,
                 base64Group: dailyImage.base64_group,
                 base64Idol: dailyImage.base64_idol,
