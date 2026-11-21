@@ -48,29 +48,59 @@ export default function IdolSearchInput({
     const matches = useMemo(() => {
         const needle = query.trim().toLowerCase()
         if (!needle) return []
+        const rank = (a: ClassicCandidate, b: ClassicCandidate) => {
+            const aStarts = a.name.toLowerCase().startsWith(needle) ? 0 : 1
+            const bStarts = b.name.toLowerCase().startsWith(needle) ? 0 : 1
+            return (
+                aStarts - bStarts ||
+                a.name.localeCompare(b.name) ||
+                a.groupName.localeCompare(b.groupName)
+            )
+        }
+        const groupKey = (idol: ClassicCandidate) =>
+            idol.groupName.trim().toLowerCase()
+        const matchedGroups = new Set<string>()
+        for (const idol of pool) {
+            const group = groupKey(idol)
+            if (!group) continue
+            if (
+                group.startsWith(needle) ||
+                (needle.length >= 3 && group.includes(needle))
+            ) {
+                matchedGroups.add(group)
+            }
+        }
+        const showWholeGroup =
+            matchedGroups.size === 1 ||
+            (needle.length >= 3 &&
+                matchedGroups.size > 1 &&
+                matchedGroups.size <= 3)
         const ranked = pool
             .filter((idol) => {
                 const name = idol.name.toLowerCase()
-                const group = idol.groupName.toLowerCase()
+                const group = groupKey(idol)
                 return name.includes(needle) || group.includes(needle)
             })
-            .sort((a, b) => {
-                const aStarts = a.name.toLowerCase().startsWith(needle) ? 0 : 1
-                const bStarts = b.name.toLowerCase().startsWith(needle) ? 0 : 1
-                return (
-                    aStarts - bStarts ||
-                    a.name.localeCompare(b.name) ||
-                    a.groupName.localeCompare(b.groupName)
-                )
-            })
-        const visible = ranked.slice(0, 8)
-        const last = visible[visible.length - 1]
-        const lastName = last?.name.trim().toLowerCase()
-        if (!lastName || !sharedNames.has(lastName)) return visible
-        const rest = ranked
-            .slice(8)
-            .filter((idol) => idol.name.trim().toLowerCase() === lastName)
-        return rest.length > 0 ? [...visible, ...rest] : visible
+            .sort(rank)
+        const cap = (list: ClassicCandidate[]) => {
+            const visible = list.slice(0, 8)
+            const lastName = visible[visible.length - 1]?.name
+                .trim()
+                .toLowerCase()
+            if (!lastName || !sharedNames.has(lastName)) return visible
+            const rest = list
+                .slice(8)
+                .filter((idol) => idol.name.trim().toLowerCase() === lastName)
+            return rest.length > 0 ? [...visible, ...rest] : visible
+        }
+        if (!showWholeGroup) return cap(ranked)
+        const members = ranked.filter((idol) =>
+            matchedGroups.has(groupKey(idol))
+        )
+        const others = ranked.filter(
+            (idol) => !matchedGroups.has(groupKey(idol))
+        )
+        return [...members, ...cap(others)]
     }, [pool, query, sharedNames])
 
     const pinned =
