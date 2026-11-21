@@ -197,6 +197,17 @@ export default function IdolSearchInput({
         return null
     }
 
+    const showGuess = !(disabled && !pending)
+
+    const guess = () => {
+        const chosen = guessOnEnter()
+        if (!chosen) {
+            setOpen(true)
+            return
+        }
+        submit(chosen)
+    }
+
     return (
         <div ref={root} className='relative w-full'>
             <div
@@ -251,12 +262,7 @@ export default function IdolSearchInput({
                             }
                         } else if (event.key === 'Enter') {
                             event.preventDefault()
-                            const chosen = guessOnEnter()
-                            if (!chosen) {
-                                setOpen(true)
-                                return
-                            }
-                            submit(chosen)
+                            guess()
                         } else if (event.key === 'Escape') {
                             setOpen(false)
                         }
@@ -266,16 +272,32 @@ export default function IdolSearchInput({
                             ? 'Checking...'
                             : disabled
                               ? 'Round finished'
-                              : 'Type an idol name...'
+                              : 'Type an idol or group name...'
                     }
                     aria-label='Idol name'
                     autoComplete='off'
                     className='min-w-0 flex-1 bg-transparent px-4 py-3 outline-none'
                 />
                 {showGroup && pinned && (
-                    <span className='mr-3 max-w-[46%] shrink truncate rounded-full bg-pink-600 px-2.5 py-1 text-xs font-bold text-white'>
+                    <span
+                        className={`max-w-[40%] shrink truncate rounded-full bg-pink-600 px-2.5 py-1 text-xs font-bold text-white ${
+                            showGuess ? 'mr-1' : 'mr-3'
+                        }`}
+                    >
                         {pinned.groupName}
                     </span>
+                )}
+                {showGuess && (
+                    <button
+                        type='button'
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={guess}
+                        disabled={disabled || pending || !query.trim()}
+                        tabIndex={-1}
+                        className='mr-1.5 shrink-0 cursor-pointer rounded-full bg-pink-600 px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-pink-500 disabled:cursor-not-allowed disabled:opacity-40'
+                    >
+                        GUESS
+                    </button>
                 )}
             </div>
             {open && matches.length > 0 && (
