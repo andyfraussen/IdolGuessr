@@ -616,7 +616,6 @@ export default function DailyClient({
                                         ? historyDisabledLetters
                                         : disabledLetters
                                 }
-                                allowNumbers
                                 className='flex-shrink-0 pb-4'
                             />
                         </>
