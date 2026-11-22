@@ -1137,14 +1137,14 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
             }
             if (event.repeat) return
             const key = event.key.toUpperCase()
-            if (key === 'ENTER' || key === 'BACKSPACE' || /^[A-Z]$/.test(key)) {
+            if (key === 'ENTER' || key === 'BACKSPACE' || /^[A-Z0-9]$/.test(key)) {
                 event.preventDefault()
             }
             if (key === 'ENTER') {
                 handleKeyPress('ENTER')
             } else if (key === 'BACKSPACE') {
                 handleKeyPress('✕')
-            } else if (/^[A-Z]$/.test(key)) {
+            } else if (/^[A-Z0-9]$/.test(key)) {
                 if (!disabledLetters.has(key)) {
                     handleKeyPress(key)
                 }

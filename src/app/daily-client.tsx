@@ -348,14 +348,14 @@ export default function DailyClient({
                 return
             }
             const key = event.key.toUpperCase()
-            if (key === 'ENTER' || key === 'BACKSPACE' || /^[A-Z]$/.test(key)) {
+            if (key === 'ENTER' || key === 'BACKSPACE' || /^[A-Z0-9]$/.test(key)) {
                 event.preventDefault()
             }
             if (key === 'ENTER') {
                 handleHistoryKeyPress('ENTER')
             } else if (key === 'BACKSPACE') {
                 handleHistoryKeyPress('✕')
-            } else if (/^[A-Z]$/.test(key)) {
+            } else if (/^[A-Z0-9]$/.test(key)) {
                 if (!historyDisabledLetters.has(key)) {
                     handleHistoryKeyPress(key)
                 }
@@ -616,6 +616,7 @@ export default function DailyClient({
                                         ? historyDisabledLetters
                                         : disabledLetters
                                 }
+                                allowNumbers
                                 className='flex-shrink-0 pb-4'
                             />
                         </>

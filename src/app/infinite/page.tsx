@@ -260,6 +260,7 @@ export default function InfinitePage() {
 
                             <OnScreenKeyboard
                                 onKeyPress={handleKeyPress}
+                                allowNumbers
                                 className='flex-shrink-0 pb-4'
                             />
                         </>
