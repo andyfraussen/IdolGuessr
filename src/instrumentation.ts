@@ -12,24 +12,26 @@ const missingVariable = token
 export const posthogLoggerProvider =
     token && host
         ? new LoggerProvider({
-              resource: resourceFromAttributes({
-                  'service.name': 'idol-guessr',
-                  'service.version': process.env.npm_package_version ?? 'unknown',
-                  'deployment.environment': process.env.NODE_ENV ?? 'development',
-              }),
-              processors: [
-                  new BatchLogRecordProcessor(
-                      new OTLPLogExporter({
-                          url: `${host.replace(/\/$/, '')}/i/v1/logs`,
-                          headers: {
-                              Authorization: `Bearer ${token}`,
-                              'Content-Type': 'application/json',
-                          },
-                          timeoutMillis: 2000,
-                      }),
-                  ),
-              ],
-          })
+            resource: resourceFromAttributes({
+                'service.name': 'idol-guessr',
+                'service.version': process.env.npm_package_version ?? 'unknown',
+                'deployment.environment': process.env.NODE_ENV ?? 'development',
+            }),
+            processors: [
+                new BatchLogRecordProcessor(
+                    {
+                        exporter: new OTLPLogExporter({
+                            url: `${host.replace(/\/$/, '')}/i/v1/logs`,
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            timeoutMillis: 2000,
+                        })
+                    },
+                ),
+            ],
+        })
         : null
 
 export const posthogServerLogger = posthogLoggerProvider?.getLogger('idol-guessr.posthog')
