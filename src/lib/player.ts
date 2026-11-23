@@ -3,6 +3,7 @@
 import {
     getMultipleRandomHangulImages,
     getMultipleRandomUnlimitedImages,
+    clearBrowserSession,
     supabase,
     type DailyImage,
     type HangulImage,
@@ -995,6 +996,7 @@ export async function signInWithEmail(email: string): Promise<'sent' | 'signed-i
 }
 
 export async function signOutToGuest() {
+    clearBrowserSession()
     await supabase.auth.signOut()
     const { data, error } = await supabase.auth.signInAnonymously()
     if (error) throw error

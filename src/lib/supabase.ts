@@ -1,8 +1,16 @@
 import { createBrowserClient } from '@supabase/ssr'
+import type { Session } from '@supabase/supabase-js'
 import {
     INFINITE_GEN_VALUES,
     isActiveInfiniteGenFilter,
 } from '@/utils/genFilter'
+import {
+    accessTokenStillValid,
+    clearBrowserSession,
+    readBrowserSession,
+    rememberBrowserSession,
+    withBackupAccessToken,
+} from '@/lib/browserSession'
 import { supabaseAnonKey, supabaseUrl } from '@/lib/supabase/env'
 import { randomId } from '@/utils/randomId'
 import {
@@ -11,7 +19,113 @@ import {
     startInfiniteRound,
 } from '@/lib/game/actions'
 
-export const supabase = createBrowserClient(supabaseUrl(), supabaseAnonKey())
+let cookieHealStarted = false
+
+function sendWithBackup(input: RequestInfo | URL, init: RequestInit | undefined) {
+    const backed = withBackupAccessToken(supabaseAnonKey(), input, init)
+    if (!backed) return fetch(input, init)
+    scheduleCookieHeal()
+    if (input instanceof Request) return fetch(new Request(input, { headers: backed.headers }))
+    return fetch(input, { ...init, headers: backed.headers })
+}
+
+async function browserFetch(
+    input: RequestInfo | URL,
+    init: RequestInit | undefined,
+    allowRetry: boolean,
+): Promise<Response> {
+    const response = await sendWithBackup(input, init)
+    if (!allowRetry || response.status !== 400) return response
+    const url =
+        input instanceof Request
+            ? input.url
+            : input instanceof URL
+              ? input.toString()
+              : String(input)
+    if (!url.includes('/rest/v1/')) return response
+    let body = ''
+    try {
+        body = await response.clone().text()
+    } catch {
+        return response
+    }
+    if (!body.includes('not_authenticated')) return response
+    const session = await ensureBrowserSession()
+    if (!session?.access_token) return response
+    return browserFetch(input, init, false)
+}
+
+export const supabase = createBrowserClient(supabaseUrl(), supabaseAnonKey(), {
+    global: {
+        fetch: (input, init) => {
+            if (typeof window === 'undefined') return fetch(input, init)
+            return browserFetch(input, init, true)
+        },
+    },
+})
+
+if (typeof window !== 'undefined') {
+    supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.access_token) rememberBrowserSession(session)
+    })
+}
+
+function scheduleCookieHeal() {
+    if (cookieHealStarted || typeof window === 'undefined') return
+    cookieHealStarted = true
+    void supabase.auth.getSession().then(async ({ data }) => {
+        if (data.session?.access_token) return
+        const saved = readBrowserSession()
+        if (!saved?.access_token || !saved.refresh_token) return
+        const restored = await supabase.auth.setSession({
+            access_token: saved.access_token,
+            refresh_token: saved.refresh_token,
+        })
+        if (restored.data.session) rememberBrowserSession(restored.data.session)
+    }).catch(() => undefined)
+}
+
+let ensuringSession: Promise<Session | null> | null = null
+
+export function ensureBrowserSession(): Promise<Session | null> {
+    if (!ensuringSession) {
+        ensuringSession = ensureBrowserSessionOnce().finally(() => {
+            ensuringSession = null
+        })
+    }
+    return ensuringSession
+}
+
+async function ensureBrowserSessionOnce(): Promise<Session | null> {
+    if (typeof window === 'undefined') return null
+    const { data } = await supabase.auth.getSession()
+    if (data.session?.access_token) {
+        rememberBrowserSession(data.session)
+        return data.session
+    }
+
+    const saved = readBrowserSession()
+    if (saved?.access_token && saved.refresh_token) {
+        if (accessTokenStillValid(saved)) {
+            rememberBrowserSession(saved)
+            scheduleCookieHeal()
+            return saved
+        }
+        const refreshed = await supabase.auth.refreshSession({ refresh_token: saved.refresh_token })
+        if (refreshed.data.session?.access_token) {
+            rememberBrowserSession(refreshed.data.session)
+            return refreshed.data.session
+        }
+        clearBrowserSession()
+    }
+
+    const signed = await supabase.auth.signInAnonymously()
+    if (signed.error || !signed.data.session) return null
+    rememberBrowserSession(signed.data.session)
+    return signed.data.session
+}
+
+export { clearBrowserSession }
 
 export interface DailyImage {
     id: number
@@ -393,6 +507,7 @@ export async function signInAdmin(
 }
 
 export async function signOutAdmin(): Promise<void> {
+    clearBrowserSession()
     const { error } = await supabase.auth.signOut()
     if (error) throw error
 }
