@@ -32,6 +32,8 @@ function friendly(error: unknown) {
     if (message.includes('already_guessed'))
         return 'You already guessed that idol'
     if (message.includes('no_idol')) return 'No idols match this filter yet'
+    if (message.includes('not_authenticated'))
+        return 'Still signing you in. Try again.'
     if (message.includes('no_active_game'))
         return 'This round is already finished'
     if (message.includes('round_in_progress'))
