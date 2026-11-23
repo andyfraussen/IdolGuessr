@@ -276,7 +276,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
             <div className='mx-auto w-full max-w-7xl px-4 pb-6'>
                 <div className='mx-auto mt-4 w-full max-w-md'>
                     <div className='mb-3 text-center'>
-                        <h1 className='text-5xl font-bold text-white'>
+                        <h1 className='text-5xl font-bold dark:text-white text-black'>
                             Classic
                         </h1>
                         {mode === 'daily' && winCount !== null && (
