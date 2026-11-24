@@ -4,7 +4,7 @@ import type { ClassicFeedback } from '@/lib/classic'
 import localFont from 'next/font/local'
 
 const maleoTrials = localFont({
-    src: '../../../public/fonts/MaleoTrials-Black.otf',
+    src: '../../../public/fonts/maleotrials-black.otf',
 })
 
 const proximaNova = localFont({
