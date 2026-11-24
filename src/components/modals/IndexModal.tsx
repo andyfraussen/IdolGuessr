@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import ClassicModeModal from '@/components/classic/ClassicModeModal'
 import VisualModeModal from '@/components/modals/VisualModeModal'
 import UnshuffledModeModal from '@/components/unshuffled/UnshuffledModeModal'
-import { getDailyCount } from '@/lib/supabase'
+import { getClassicDailyNumber, getDailyCount, getUnshuffledDailyNumber } from '@/lib/supabase'
 
 interface IndexModalProps {
     isOpen: boolean
@@ -32,7 +32,9 @@ export default function IndexModal({
     const [visualOpen, setVisualOpen] = useState(false)
     const [unshuffledOpen, setUnshuffledOpen] = useState(false)
     const [classicOpen, setClassicOpen] = useState(false)
-    const [dailyCount, setDailyCount] = useState<number | null>(null)
+    const [visualDaily, setVisualDaily] = useState<number | null>(null)
+    const [classicDaily, setClassicDaily] = useState<number | null>(null)
+    const [unshuffledDaily, setUnshuffledDaily] = useState<number | null>(null)
     const [todayLabel, setTodayLabel] = useState<string | null>(null)
 
     useEffect(() => {
@@ -57,8 +59,14 @@ export default function IndexModal({
         if (isOpen) {
             setIsClosing(false)
             getDailyCount()
-                .then(setDailyCount)
-                .catch(() => setDailyCount(0))
+                .then(setVisualDaily)
+                .catch(() => setVisualDaily(0))
+            getClassicDailyNumber()
+                .then(setClassicDaily)
+                .catch(() => setClassicDaily(null))
+            getUnshuffledDailyNumber()
+                .then(setUnshuffledDaily)
+                .catch(() => setUnshuffledDaily(null))
         }
     }, [isOpen])
 
@@ -168,7 +176,11 @@ export default function IndexModal({
                 <h1 className='mt-6 text-xl font-bold'>
                     {todayLabel ?? '\u00A0'}
                 </h1>
-                <p className='text-lg'>Daily #{dailyCount ?? ''}</p>
+                <div className='text-lg leading-snug'>
+                    <p>Classic Daily #{classicDaily ?? ''}</p>
+                    <p>Visual Daily #{visualDaily ?? ''}</p>
+                    <p>Unshuffled Daily #{unshuffledDaily ?? ''}</p>
+                </div>
             </div>
             <VisualModeModal
                 open={visualOpen}

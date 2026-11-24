@@ -813,21 +813,45 @@ export async function trackHangulGame(streak: number): Promise<void> {
     }
 }
 
-export async function getDailyCount(): Promise<number> {
+function puzzleDay(): string {
     const now = new Date()
     const gmtPlus1 = new Date(now.getTime() + 60 * 60 * 1000)
-    const today = gmtPlus1.toISOString().split('T')[0]
+    return gmtPlus1.toISOString().split('T')[0]
+}
 
+async function datedDailyNumber(table: 'classic_dailies' | 'unshuffled_dailies'): Promise<number | null> {
+    const todayRow = await supabase
+        .from(table)
+        .select('id')
+        .eq('play_date', puzzleDay())
+        .maybeSingle()
+    if (todayRow.error) {
+        console.error(`Error getting ${table} number:`, todayRow.error)
+        return null
+    }
+    const id = Number(todayRow.data?.id)
+    return Number.isFinite(id) && id > 0 ? id : null
+}
+
+export async function getDailyCount(): Promise<number> {
     const { count, error } = await supabase
         .from('dailies_public')
         .select('id', { count: 'exact', head: true })
-        .lte('play_date', today)
+        .lte('play_date', puzzleDay())
 
     if (error) {
         console.error('Error getting daily count:', error)
         return 0
     }
     return (count || 0) + 1
+}
+
+export function getClassicDailyNumber(): Promise<number | null> {
+    return datedDailyNumber('classic_dailies')
+}
+
+export function getUnshuffledDailyNumber(): Promise<number | null> {
+    return datedDailyNumber('unshuffled_dailies')
 }
 
 export async function getTodayDailyGuessCount(): Promise<number> {
