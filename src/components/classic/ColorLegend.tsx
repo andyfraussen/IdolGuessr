@@ -9,16 +9,16 @@ const ITEMS = [
     { label: 'Correct', className: 'bg-[#3aa346]' },
     { label: 'Partial', className: 'bg-[#e39b2b]' },
     { label: 'Incorrect', className: 'bg-[#d64545]' },
-    { label: 'Higher', className: 'bg-[#d64545]', direction: 'up' as const },
-    { label: 'Lower', className: 'bg-[#d64545]', direction: 'down' as const },
+    { label: 'Higher\nYounger', className: 'bg-[#d64545]', direction: 'up' as const },
+    { label: 'Lower\nOlder', className: 'bg-[#d64545]', direction: 'down' as const },
 ]
 
 export default function ColorLegend() {
     return (
         <div className={`mt-6 ${spaceGrotesk.className}`}>
-            <div className='mt-3 flex flex-wrap items-end justify-center gap-4'>
+            <div className='mt-3 flex flex-nowrap items-start justify-center gap-3'>
                 {ITEMS.map((item) => (
-                    <div key={item.label} className='flex w-12 flex-col items-center gap-1'>
+                    <div key={item.label} className='flex w-14 flex-col items-center gap-1'>
                         <div className={`flex h-9 w-9 items-center justify-center overflow-hidden rounded text-black dark:text-white ${item.className}`}>
                             {item.direction && (
                                 <span
