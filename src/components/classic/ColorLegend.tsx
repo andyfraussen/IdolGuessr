@@ -1,8 +1,7 @@
-import { Space_Grotesk } from 'next/font/google'
+import localFont from 'next/font/local'
 
-const spaceGrotesk = Space_Grotesk({
-    subsets: ['latin'],
-    weight: ['400', '500', '600', '700'],
+const proximaNova = localFont({
+    src: '../../../public/fonts/proximanova_bold.otf',
 })
 
 const ITEMS = [
@@ -15,7 +14,7 @@ const ITEMS = [
 
 export default function ColorLegend() {
     return (
-        <div className={`mt-6 ${spaceGrotesk.className}`}>
+        <div className={`mt-6 ${proximaNova.className}`}>
             <div className='mt-3 flex flex-nowrap items-start justify-center gap-3'>
                 {ITEMS.map((item) => (
                     <div key={item.label} className='flex w-14 flex-col items-center gap-1'>
