@@ -764,7 +764,7 @@ export async function trackUnlimitedGame(
     difficulty: UnlimitedGameData['difficulty'] = 'normal',
     mode: UnlimitedGameData['mode'] = 'pixelated'
 ): Promise<void> {
-    if (streak < 1) return
+    if (streak < 5) return
     const userId = getAccountId()
     if (!userId) return
 
