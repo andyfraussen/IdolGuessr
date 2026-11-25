@@ -61,7 +61,7 @@ function KeyboardInfo() {
                         className='absolute top-8 left-1/2 z-20 w-72 rounded-md border border-gray-200 bg-white p-3 text-left text-sm leading-relaxed font-normal text-black shadow-lg dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
                     >
                         Turning this off gives the image more room and shows a
-                        list of idols to choose from as you type.
+                        list of idols to choose from as you type. (This only applies to the visual mode.)
                     </motion.div>
                 ) : null}
             </AnimatePresence>

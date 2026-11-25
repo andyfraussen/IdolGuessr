@@ -14,6 +14,16 @@ export const metadata: Metadata = {
 
 const entries: { date: string; changes: string[] }[] = [
     {
+        date: 'November 25, 2026',
+        changes: [
+            'Added pages to the leaderboard',
+            'Updated the Classic how to play guide',
+            'Classic profiles now note they were filled in with AI and can be reported',
+            'Added a tooltip to the on-screen keyboard setting',
+            'Moved Challenge into Visual mode',
+        ],
+    },
+    {
         date: 'November 17, 2026',
         changes: [
             'Added Classic gamemode',
