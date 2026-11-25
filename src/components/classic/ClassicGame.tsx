@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import ColorLegend from '@/components/classic/ColorLegend'
+import ColorLegend, { ProfileSourceNote } from '@/components/classic/ColorLegend'
 import GuessGrid from '@/components/classic/GuessGrid'
 import { CLASSIC_REVEAL_MS } from '@/components/classic/GuessRow'
 import ClassicFilterModal from '@/components/classic/ClassicFilterModal'
@@ -32,6 +32,8 @@ function friendly(error: unknown) {
     if (message.includes('already_guessed'))
         return 'You already guessed that idol'
     if (message.includes('no_idol')) return 'No idols match this filter yet'
+    if (message.includes('not_authenticated'))
+        return 'Still signing you in. Try again.'
     if (message.includes('no_active_game'))
         return 'This round is already finished'
     if (message.includes('round_in_progress'))
@@ -75,6 +77,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
     const [showInfo, setShowInfo] = useState(false)
     const [showHelp, setShowHelp] = useState(false)
     const [showFeedback, setShowFeedback] = useState(false)
+    const [feedbackFromInfo, setFeedbackFromInfo] = useState(false)
     const rolled = useRef(false)
     const busyRef = useRef(false)
     const holdResult = useRef(false)
@@ -276,8 +279,14 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
             <div className='mx-auto w-full max-w-7xl px-4 pb-6'>
                 <div className='mx-auto mt-4 w-full max-w-md'>
                     <div className='mb-3 text-center'>
-                        <h1 className='text-5xl font-bold dark:text-white text-black'>
+                        <h1 className='relative flex gap-1.5 items-center justify-center text-5xl font-bold text-black dark:text-white'>
                             Classic
+                            <ProfileSourceNote
+                                onReport={() => {
+                                    setFeedbackFromInfo(false)
+                                    setShowFeedback(true)
+                                }}
+                            />
                         </h1>
                         {mode === 'daily' && winCount !== null && (
                             <p className='mt-2 text-sm italic text-gray-500 dark:text-zinc-400'>
@@ -315,6 +324,9 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             }
                             disabled={busy || game?.status !== 'in_progress'}
                             pending={busy && game?.status === 'in_progress'}
+                            success={game?.status === 'won' && !revealHold}
+                            keepGuess={game?.status === 'won'}
+                            lockedName={finished ? (game?.answer?.name ?? '') : ''}
                             onPick={(idol) => void pick(idol)}
                         />
                     )}
@@ -335,7 +347,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                                     <button
                                         type='button'
                                         onClick={() => setConfirmGiveUp(true)}
-                                        className='cursor-pointer rounded-full bg-pink-600 px-4 py-2 font-bold text-white hover:bg-pink-700'
+                                        className='cursor-pointer rounded-full bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700'
                                     >
                                         Give up
                                     </button>
@@ -351,7 +363,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                                 <button
                                     type='button'
                                     onClick={() => setConfirmGiveUp(true)}
-                                    className='cursor-pointer rounded-full bg-pink-600 px-4 py-2 font-bold text-white hover:bg-pink-700'
+                                    className='cursor-pointer rounded-full bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700'
                                 >
                                     Give up
                                 </button>
@@ -395,6 +407,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 isOpen={showInfo}
                 onClose={() => setShowInfo(false)}
                 onShowFeedback={() => {
+                    setFeedbackFromInfo(true)
                     setShowInfo(false)
                     setShowFeedback(true)
                 }}
@@ -415,7 +428,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 onClose={() => setShowFeedback(false)}
                 onBack={() => {
                     setShowFeedback(false)
-                    setShowInfo(true)
+                    if (feedbackFromInfo) setShowInfo(true)
                 }}
             />
             {mode === 'infinite' && (
