@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { idolPortrait, type ClassicCandidate } from '@/lib/classic'
 
@@ -322,8 +323,16 @@ export default function IdolSearchInput({
                     </button>
                 )}
             </div>
+            <AnimatePresence>
             {open && matches.length > 0 && (
-                <ul className='absolute z-20 mt-2 max-h-80 w-full overflow-auto rounded-2xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900'>
+                <motion.ul
+                    key='idol-results'
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.16, ease: 'easeOut' }}
+                    className='absolute z-20 mt-2 max-h-80 w-full overflow-auto rounded-2xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900'
+                >
                     {matches.map((idol, index) => {
                         const guessed = excluded.has(idol.id)
                         const portrait = idolPortrait(idol)
@@ -399,8 +408,9 @@ export default function IdolSearchInput({
                             </li>
                         )
                     })}
-                </ul>
+                </motion.ul>
             )}
+            </AnimatePresence>
         </div>
     )
 }
