@@ -896,12 +896,13 @@ export async function saveNickname(nickname: string) {
     return overview
 }
 
-export async function fetchLeaderboard(mode: string, difficulty = '', imageMode = '') {
+export async function fetchLeaderboard(mode: string, difficulty = '', imageMode = '', offset = 0) {
     const { data, error } = await supabase.rpc('get_leaderboard', {
         p_mode: mode,
         p_difficulty: difficulty,
         p_image_mode: imageMode,
         p_limit: 50,
+        p_offset: offset,
     })
     if (error) throw error
     return data as {
@@ -913,6 +914,7 @@ export async function fetchLeaderboard(mode: string, difficulty = '', imageMode 
             avg_guesses: number | null
             is_me: boolean
         }>
+        total: number
         me: {
             rank: number | null
             nickname: string | null

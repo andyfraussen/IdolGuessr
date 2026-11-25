@@ -41,6 +41,7 @@ function averageLabel(value: number | null | undefined) {
     return value.toFixed(1)
 }
 
+const PAGE_SIZE = 50
 const PODIUM = [2, 1, 3] as const
 const LIST_ROW_HEIGHT = '3rem'
 const LIST_ROW_GAP = '0.5rem'
@@ -198,6 +199,8 @@ export default function LeaderboardPage() {
         useState<(typeof CLASSIC_LISTS)[number]['id']>('daily')
     const [difficulty, setDifficulty] = useState<InfiniteDifficulty>('normal')
     const [imageMode, setImageMode] = useState<ImageMode>('pixelated')
+    const [page, setPage] = useState(0)
+    const [total, setTotal] = useState(0)
     const [rows, setRows] = useState<LeaderboardRow[]>([])
     const [me, setMe] = useState<{
         rank: number | null
@@ -220,10 +223,12 @@ export default function LeaderboardPage() {
                         : tab === 'classic'
                           ? classicList
                           : '',
-                    tab === 'infinite' ? imageMode : ''
+                    tab === 'infinite' ? imageMode : '',
+                    page * PAGE_SIZE
                 )
                 if (cancelled) return
                 setRows(data.rows ?? [])
+                setTotal(data.total ?? data.rows?.length ?? 0)
                 setMe(data.me)
                 setError('')
             } catch (err) {
@@ -239,7 +244,11 @@ export default function LeaderboardPage() {
         return () => {
             cancelled = true
         }
-    }, [tab, difficulty, imageMode, classicList])
+    }, [tab, difficulty, imageMode, classicList, page])
+
+    const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
+    const rangeStart = total === 0 ? 0 : page * PAGE_SIZE + 1
+    const rangeEnd = Math.min(total, (page + 1) * PAGE_SIZE)
 
     return (
         <main className='mx-auto min-h-screen max-w-lg px-4 py-10'>
@@ -288,7 +297,10 @@ export default function LeaderboardPage() {
                             <button
                                 key={item.id}
                                 type='button'
-                                onClick={() => setTab(item.id)}
+                                onClick={() => {
+                                    setTab(item.id)
+                                    setPage(0)
+                                }}
                                 className={segmentClass(tab === item.id)}
                             >
                                 {item.label}
@@ -303,7 +315,10 @@ export default function LeaderboardPage() {
                                 <button
                                     key={option.id}
                                     type='button'
-                                    onClick={() => setClassicList(option.id)}
+                                    onClick={() => {
+                                        setClassicList(option.id)
+                                        setPage(0)
+                                    }}
                                     className={segmentClass(
                                         classicList === option.id
                                     )}
@@ -322,7 +337,10 @@ export default function LeaderboardPage() {
                                     <button
                                         key={option}
                                         type='button'
-                                        onClick={() => setDifficulty(option)}
+                                        onClick={() => {
+                                            setDifficulty(option)
+                                            setPage(0)
+                                        }}
                                         className={segmentClass(
                                             difficulty === option
                                         )}
@@ -338,7 +356,10 @@ export default function LeaderboardPage() {
                                     <button
                                         key={option}
                                         type='button'
-                                        onClick={() => setImageMode(option)}
+                                        onClick={() => {
+                                            setImageMode(option)
+                                            setPage(0)
+                                        }}
                                         className={segmentClass(
                                             imageMode === option
                                         )}
@@ -352,7 +373,9 @@ export default function LeaderboardPage() {
                 ) : null}
             </div>
             {error ? <p className='mt-4 text-sm'>{error}</p> : null}
-            <TopThree rows={rows} showAverage={tab === 'classic'} />
+            {page === 0 ? (
+                <TopThree rows={rows} showAverage={tab === 'classic'} />
+            ) : null}
             {rows.length === 0 ? (
                 <p className='mt-6 text-sm text-gray-500'>
                     No ranked streaks yet.
@@ -406,6 +429,33 @@ export default function LeaderboardPage() {
                             </li>
                         ))}
                 </ol>
+            ) : null}
+            {total > PAGE_SIZE ? (
+                <div className='mt-4 flex items-center justify-between gap-3'>
+                    <button
+                        type='button'
+                        onClick={() => setPage((current) => Math.max(0, current - 1))}
+                        disabled={page === 0}
+                        className='cursor-pointer rounded-full bg-gray-200 px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-800'
+                    >
+                        Previous
+                    </button>
+                    <p className='text-sm text-gray-500 dark:text-zinc-400'>
+                        {rangeStart}-{rangeEnd} of {total}
+                    </p>
+                    <button
+                        type='button'
+                        onClick={() =>
+                            setPage((current) =>
+                                Math.min(pageCount - 1, current + 1)
+                            )
+                        }
+                        disabled={page >= pageCount - 1}
+                        className='cursor-pointer rounded-full bg-gray-200 px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-800'
+                    >
+                        Next
+                    </button>
+                </div>
             ) : null}
             {me ? (
                 <p className='mt-6 rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-zinc-700'>
