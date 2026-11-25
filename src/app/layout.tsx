@@ -120,6 +120,11 @@ export default function RootLayout({
                     `}
                 </Script>
                 <Script
+                    src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3110655702437586'
+                    strategy='afterInteractive'
+                    crossOrigin='anonymous'
+                />
+                <Script
                     src='https://scripts.mediavine.com/tags/02f25e0b-b180-4f3e-88d5-9ffba965602c.js'
                     strategy='afterInteractive'
                     async
