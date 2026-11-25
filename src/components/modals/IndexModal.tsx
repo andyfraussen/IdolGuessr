@@ -111,7 +111,7 @@ export default function IndexModal({
                         <div className='relative flex flex-row items-center justify-center'>
                             <button
                                 onClick={() => setClassicOpen(true)}
-                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border dark:border-zinc-600 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <ClassicIcon />
                                 Classic
@@ -123,7 +123,7 @@ export default function IndexModal({
                             </span>
                             <button
                                 onClick={() => setVisualOpen(true)}
-                                className='flex w-22.5 cursor-pointer flex-col items-center border-pink-500 justify-center border-2 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center border-pink-500 justify-center border-2 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <VisualIcon />
                                 Visual
