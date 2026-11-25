@@ -688,7 +688,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                 )
                 if (hasGuesses) {
                     const currentStreak = unlimitedStats.stats.currentStreak
-                    if (currentStreak >= 1 && !hasTrackedCurrentGame.current) {
+                    if (currentStreak >= 5 && !hasTrackedCurrentGame.current) {
                         void trackUnlimitedGame(currentStreak, activeDifficulty, imageMode)
                         hasTrackedCurrentGame.current = true
                     }
