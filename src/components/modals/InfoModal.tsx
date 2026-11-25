@@ -60,25 +60,6 @@ export default function InfoModal({
                 </p>
 
                 <div className='mt-6 space-y-3'>
-                    <Link
-                        href='/faq'
-                        className='flex w-full cursor-pointer items-center gap-4 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-zinc-700 dark:hover:bg-zinc-800'
-                    >
-                        <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800'>
-                            <FaqIcon />
-                        </div>
-                        <div className='text-left'>
-                            <h3
-                                className={`${proximaNovaBold.className} text-lg`}
-                            >
-                                FAQ
-                            </h3>
-                            <p className='text-sm text-gray-500 dark:text-zinc-400'>
-                                Answers to common questions
-                            </p>
-                        </div>
-                        <ChevronRightIcon />
-                    </Link>
                     <button
                         onClick={onShowHelp}
                         className='flex w-full cursor-pointer items-center gap-4 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-zinc-700 dark:hover:bg-zinc-800'
@@ -98,6 +79,25 @@ export default function InfoModal({
                         </div>
                         <ChevronRightIcon />
                     </button>
+                    <Link
+                        href='/faq'
+                        className='flex w-full cursor-pointer items-center gap-4 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-zinc-700 dark:hover:bg-zinc-800'
+                    >
+                        <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800'>
+                            <FaqIcon />
+                        </div>
+                        <div className='text-left'>
+                            <h3
+                                className={`${proximaNovaBold.className} text-lg`}
+                            >
+                                FAQ
+                            </h3>
+                            <p className='text-sm text-gray-500 dark:text-zinc-400'>
+                                Answers to common questions
+                            </p>
+                        </div>
+                        <ChevronRightIcon />
+                    </Link>
 
                     {gameMode === 'daily' && (
                         <button

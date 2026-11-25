@@ -81,10 +81,6 @@ export default function IndexModal({
         onHangul()
     }
 
-    const handleChallenge = () => {
-        onChallenge?.()
-    }
-
     const handleUnshuffled = () => {
         setUnshuffledOpen(true)
     }
@@ -113,21 +109,21 @@ export default function IndexModal({
                 <div className='mt-8 flex flex-col items-center gap-3 md:flex-row'>
                     <div className='flex justify-center gap-3'>
                         <div className='relative flex flex-row items-center justify-center'>
-                            <span className='absolute -top-2 -right-2 z-10 rounded-full bg-pink-500 px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide text-white uppercase'>
-                                New
-                            </span>
                             <button
                                 onClick={() => setClassicOpen(true)}
-                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border-2 border-pink-500 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border dark:border-zinc-600 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <ClassicIcon />
                                 Classic
                             </button>
                         </div>
-                        <div className='flex flex-row items-center justify-center'>
+                        <div className='relative flex flex-row items-center justify-center'>
+                            <span className='absolute -top-2 -right-2 z-10 rounded-full bg-pink-500 px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide text-white uppercase'>
+                                Updated
+                            </span>
                             <button
                                 onClick={() => setVisualOpen(true)}
-                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                className='flex w-22.5 cursor-pointer flex-col items-center border-pink-500 justify-center border-2 bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             >
                                 <VisualIcon />
                                 Visual
@@ -153,15 +149,6 @@ export default function IndexModal({
                                 Hangul
                             </button>
                         </div>
-                        <div className='relative flex flex-row items-center justify-center'>
-                            <button
-                                onClick={handleChallenge}
-                                className='flex w-22.5 cursor-pointer flex-col items-center justify-center border bg-[#f3f3f3] p-3 hover:bg-[#dbdbdb] dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700'
-                            >
-                                <ChallengeIcon />
-                                Challenge
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -175,6 +162,7 @@ export default function IndexModal({
                 onClose={() => setVisualOpen(false)}
                 onDaily={handleDaily}
                 onInfinite={handleInfinite}
+                onChallenge={() => onChallenge?.()}
             />
             <UnshuffledModeModal
                 open={unshuffledOpen}
@@ -250,29 +238,6 @@ function ClassicIcon() {
             <rect x='14' y='3' width='7' height='7' rx='1.5' opacity='0.45' />
             <rect x='3' y='14' width='7' height='7' rx='1.5' opacity='0.7' />
             <rect x='14' y='14' width='7' height='7' rx='1.5' opacity='0.3' />
-        </svg>
-    )
-}
-
-function ChallengeIcon() {
-    return (
-        <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='36'
-            height='36'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-        >
-            <path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6' />
-            <path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18' />
-            <path d='M4 22h16' />
-            <path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22' />
-            <path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22' />
-            <path d='M18 2H6v7a6 6 0 0 0 12 0V2Z' />
         </svg>
     )
 }
