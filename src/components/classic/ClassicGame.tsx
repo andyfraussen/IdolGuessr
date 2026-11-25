@@ -317,6 +317,9 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             }
                             disabled={busy || game?.status !== 'in_progress'}
                             pending={busy && game?.status === 'in_progress'}
+                            success={game?.status === 'won' && !revealHold}
+                            keepGuess={game?.status === 'won'}
+                            lockedName={finished ? (game?.answer?.name ?? '') : ''}
                             onPick={(idol) => void pick(idol)}
                         />
                     )}

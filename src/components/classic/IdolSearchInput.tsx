@@ -9,12 +9,18 @@ export default function IdolSearchInput({
     excludedIds,
     disabled,
     pending = false,
+    success = false,
+    keepGuess = false,
+    lockedName = '',
     onPick,
 }: {
     pool: ClassicCandidate[]
     excludedIds: number[]
     disabled: boolean
     pending?: boolean
+    success?: boolean
+    keepGuess?: boolean
+    lockedName?: string
     onPick: (idol: ClassicCandidate) => void
 }) {
     const [query, setQuery] = useState('')
@@ -27,6 +33,7 @@ export default function IdolSearchInput({
     const inputRef = useRef<HTMLInputElement>(null)
     const fromSelection = useRef(false)
     const skipOpen = useRef(false)
+    const keptGuess = useRef<string | null>(null)
     const excluded = useMemo(() => new Set(excludedIds), [excludedIds])
 
     const sharedNames = useMemo(() => {
@@ -136,6 +143,14 @@ export default function IdolSearchInput({
     }, [query])
 
     useEffect(() => {
+        if (pending || keepGuess) return
+        if (keptGuess.current == null) return
+        keptGuess.current = null
+        setQuery('')
+        setPinnedId(null)
+    }, [pending, keepGuess])
+
+    useEffect(() => {
         const close = (event: MouseEvent) => {
             if (!root.current?.contains(event.target as Node)) setOpen(false)
         }
@@ -164,7 +179,8 @@ export default function IdolSearchInput({
         if (!idol || excluded.has(idol.id)) return
         setPinnedId(null)
         setKeyboardPick(false)
-        setQuery('')
+        keptGuess.current = idol.name
+        setQuery(idol.name)
         setOpen(false)
         onPick(idol)
     }
@@ -211,15 +227,17 @@ export default function IdolSearchInput({
     return (
         <div ref={root} className='relative w-full'>
             <div
-                className={`flex items-center rounded-full border bg-white focus-within:border-pink-500 dark:bg-zinc-900 ${
-                    disabled
-                        ? 'border-[#3aa346]'
-                        : 'border-zinc-300 dark:border-zinc-700'
+                className={`flex items-center rounded-full border ${
+                    success
+                        ? 'border-[#3aa346] bg-[#3aa346]'
+                        : disabled && !query && !lockedName
+                          ? 'border-[#3aa346] bg-white dark:bg-zinc-900'
+                          : 'border-zinc-300 bg-white focus-within:border-pink-500 dark:border-zinc-700 dark:bg-zinc-900'
                 }`}
             >
                 <input
                     ref={inputRef}
-                    value={query}
+                    value={lockedName || query}
                     disabled={disabled}
                     onChange={(event) => {
                         fromSelection.current = false
@@ -270,13 +288,17 @@ export default function IdolSearchInput({
                     placeholder={
                         pending
                             ? 'Checking...'
-                            : disabled
-                              ? 'Round finished'
-                              : 'Type an idol or group name...'
+                            : success || lockedName
+                              ? ''
+                              : disabled
+                                ? 'Round finished'
+                                : 'Type an idol or group name...'
                     }
                     aria-label='Idol name'
                     autoComplete='off'
-                    className='min-w-0 flex-1 bg-transparent px-4 py-3 outline-none'
+                    className={`min-w-0 flex-1 bg-transparent px-4 py-3 outline-none ${
+                        success ? 'font-semibold text-white' : ''
+                    }`}
                 />
                 {showGroup && pinned && (
                     <span
