@@ -303,7 +303,7 @@ export default function IdolSearchInput({
                 />
                 {showGroup && pinned && (
                     <span
-                        className={`max-w-[40%] shrink truncate rounded-full bg-pink-600 px-2.5 py-1 text-xs font-bold text-white ${
+                        className={`shrink-0 whitespace-nowrap rounded-full bg-pink-600 px-2.5 py-1 text-xs font-bold text-white ${
                             showGuess ? 'mr-1' : 'mr-3'
                         }`}
                     >
@@ -382,13 +382,13 @@ export default function IdolSearchInput({
                                         ) : (
                                             <div className='h-9 w-9 rounded bg-zinc-200 dark:bg-zinc-800' />
                                         )}
-                                        <span className='min-w-0'>
+                                        <span className='min-w-0 flex-1'>
                                             <span className='flex min-w-0 items-center gap-2'>
-                                                <span className='truncate font-semibold'>
+                                                <span className='min-w-0 truncate font-semibold'>
                                                     {idol.name}
                                                 </span>
                                                 {shared && idol.groupName && (
-                                                    <span className='max-w-[55%] shrink truncate rounded-full bg-pink-600/15 px-2 py-0.5 text-[11px] font-bold text-pink-700 dark:bg-pink-500/20 dark:text-pink-300'>
+                                                    <span className='shrink-0 whitespace-nowrap rounded-full bg-pink-600/15 px-2 py-0.5 text-[11px] font-bold text-pink-700 dark:bg-pink-500/20 dark:text-pink-300'>
                                                         {idol.groupName}
                                                     </span>
                                                 )}

@@ -506,7 +506,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             Want more idols? Keep playing in Classic Infinite!
                         </h2>
                         <p className='mt-2 text-sm text-gray-600 dark:text-zinc-400'>
-                            Can you guess them all?
+                            Enjoy never-ending idol guessing!
                         </p>
                         <Link
                             href='/classic/infinite'
