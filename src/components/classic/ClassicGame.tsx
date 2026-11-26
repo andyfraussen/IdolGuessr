@@ -1,7 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { motion } from 'motion/react'
 import ColorLegend, { ProfileSourceNote } from '@/components/classic/ColorLegend'
 import GuessGrid from '@/components/classic/GuessGrid'
 import { CLASSIC_REVEAL_MS } from '@/components/classic/GuessRow'
@@ -70,6 +72,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
     const [serverOffset, setServerOffset] = useState(0)
     const [now, setNow] = useState(() => Date.now())
     const [resultOpen, setResultOpen] = useState(true)
+    const [playMore, setPlayMore] = useState(false)
     const [revealHold, setRevealHold] = useState(false)
     const [confirmGiveUp, setConfirmGiveUp] = useState(false)
     const [filterOpen, setFilterOpen] = useState(false)
@@ -396,7 +399,10 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 answer={game?.answer ?? null}
                 guesses={game?.guesses ?? []}
                 dailyId={game?.dailyId ?? null}
-                onClose={() => setResultOpen(false)}
+                onClose={() => {
+                    setResultOpen(false)
+                    if (mode === 'daily') setPlayMore(true)
+                }}
                 onNext={() => void next()}
             />
             <AccountModal
@@ -431,6 +437,45 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                     if (feedbackFromInfo) setShowInfo(true)
                 }}
             />
+            {mode === 'daily' && playMore && (
+                <div className='fixed inset-0 z-[520] flex items-center justify-center bg-black/50 p-4'>
+                    <motion.div
+                        role='dialog'
+                        aria-modal='true'
+                        aria-labelledby='play-more-title'
+                        className='relative w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-zinc-900'
+                        initial={{ y: 16, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.25, ease: 'easeOut' }}
+                    >
+                        <button
+                            type='button'
+                            onClick={() => setPlayMore(false)}
+                            className='absolute top-4 right-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                            aria-label='Close'
+                        >
+                            <svg className='h-4 w-4 text-gray-600 dark:text-zinc-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                            </svg>
+                        </button>
+                        <h2
+                            id='play-more-title'
+                            className='mt-6 text-2xl font-bold text-black dark:text-zinc-100'
+                        >
+                            Want to play more?
+                        </h2>
+                        <p className='mt-2 text-sm text-gray-600 dark:text-zinc-400'>
+                            Keep guessing idols in Classic Infinite.
+                        </p>
+                        <Link
+                            href='/classic/infinite'
+                            className='mt-6 flex w-full items-center justify-center rounded-full bg-pink-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-pink-700'
+                        >
+                            Play Classic Infinite
+                        </Link>
+                    </motion.div>
+                </div>
+            )}
             {mode === 'infinite' && (
                 <ClassicFilterModal
                     open={filterOpen && game?.status !== 'in_progress'}

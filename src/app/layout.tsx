@@ -4,6 +4,7 @@ import Script from 'next/script'
 import './globals.css'
 import { Analytics } from '@vercel/analytics/next'
 import LiveAnnouncementBanner from '@/components/announcements/LiveAnnouncementBanner'
+import { ColorblindProvider } from '@/components/theme/ColorblindProvider'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import { FeedbackNoticeProvider } from '@/components/feedback/FeedbackNoticeProvider'
@@ -124,6 +125,7 @@ export default function RootLayout({
             >
                 <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
                 <ThemeProvider>
+                    <ColorblindProvider>
                     <AuthProvider>
                         <FeedbackNoticeProvider>
                             {children}
@@ -132,6 +134,7 @@ export default function RootLayout({
                             <Analytics />
                         </FeedbackNoticeProvider>
                     </AuthProvider>
+                    </ColorblindProvider>
                 </ThemeProvider>
                 <meta
                     name='google-site-verification'

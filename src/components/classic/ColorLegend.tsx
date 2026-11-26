@@ -3,17 +3,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import localFont from 'next/font/local'
+import FeedbackIcon, { type FeedbackMark } from '@/components/theme/FeedbackIcon'
+import { useColorblind } from '@/components/theme/ColorblindProvider'
+import { feedbackPalette, type FeedbackTone } from '@/lib/feedbackPalette'
 
 const proximaNova = localFont({
     src: '../../../public/fonts/proximanova_bold.otf',
 })
 
-const ITEMS = [
-    { label: 'Correct', className: 'bg-[#3aa346]' },
-    { label: 'Partial', className: 'bg-[#e39b2b]' },
-    { label: 'Incorrect', className: 'bg-[#d64545]' },
-    { label: 'Higher\nYounger', className: 'bg-[#d64545]', direction: 'up' as const },
-    { label: 'Lower\nOlder', className: 'bg-[#d64545]', direction: 'down' as const },
+const ITEMS: Array<{
+    label: string
+    tone: FeedbackTone
+    mark?: FeedbackMark
+    direction?: 'up' | 'down'
+}> = [
+    { label: 'Correct', tone: 'correct', mark: 'correct' },
+    { label: 'Partial', tone: 'partial', mark: 'partial' },
+    { label: 'Incorrect', tone: 'wrong', mark: 'wrong' },
+    { label: 'Higher\nYounger', tone: 'higher', direction: 'up' },
+    { label: 'Lower\nOlder', tone: 'lower', direction: 'down' },
 ]
 
 export function ProfileSourceNote({ onReport }: { onReport?: () => void }) {
@@ -93,13 +101,16 @@ export function ProfileSourceNote({ onReport }: { onReport?: () => void }) {
 }
 
 export default function ColorLegend() {
+    const { colorblind, attributeIcons } = useColorblind()
+    const palette = feedbackPalette(colorblind)
+
     return (
         <div className={`mt-6 ${proximaNova.className}`}>
             <div className='mt-3 flex flex-nowrap items-start justify-center gap-3'>
                 {ITEMS.map((item) => (
                     <div key={item.label} className='flex w-14 flex-col items-center gap-1'>
-                        <div className={`flex h-9 w-9 items-center justify-center overflow-hidden rounded text-black dark:text-white ${item.className}`}>
-                            {item.direction && (
+                        <div className={`flex h-9 w-9 items-center justify-center overflow-hidden rounded text-white ${palette[item.tone]}`}>
+                            {item.direction ? (
                                 <span
                                     aria-hidden
                                     className='h-8 w-8 bg-black/60 mask-contain mask-center mask-no-repeat'
@@ -109,7 +120,9 @@ export default function ColorLegend() {
                                         transform: item.direction === 'down' ? 'rotate(180deg) scale(1.35)' : 'scale(1.35)',
                                     }}
                                 />
-                            )}
+                            ) : attributeIcons && item.mark ? (
+                                <FeedbackIcon mark={item.mark} className='h-5 w-5' />
+                            ) : null}
                         </div>
                         <span className='whitespace-pre-line text-center text-xs leading-tight text-black dark:text-white'>
                             {item.label}
