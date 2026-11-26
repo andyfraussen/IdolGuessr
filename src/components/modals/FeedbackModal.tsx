@@ -83,23 +83,29 @@ export default function FeedbackModal({
         }
     }, [])
 
-    const openThread = useCallback(async (ticketId: string) => {
-        const token = getTicketToken(ticketId)
-        if (!token) return
-        setThreadError(null)
-        setView('thread')
-        try {
-            const data = await getFeedbackThread(ticketId, token)
-            setThread(data)
-            markSeen(ticketId, data.ticket.last_admin_message_at)
-            void markFeedbackRead(ticketId, data.ticket.last_admin_message_at)
-            syncUnread()
-            setSeenVersion((v) => v + 1)
-        } catch (err) {
-            console.error('Error loading ticket:', err)
-            setThreadError('Could not load this ticket.')
-        }
-    }, [syncUnread])
+    const openThread = useCallback(
+        async (ticketId: string) => {
+            const token = getTicketToken(ticketId)
+            if (!token) return
+            setThreadError(null)
+            setView('thread')
+            try {
+                const data = await getFeedbackThread(ticketId, token)
+                setThread(data)
+                markSeen(ticketId, data.ticket.last_admin_message_at)
+                void markFeedbackRead(
+                    ticketId,
+                    data.ticket.last_admin_message_at
+                )
+                syncUnread()
+                setSeenVersion((v) => v + 1)
+            } catch (err) {
+                console.error('Error loading ticket:', err)
+                setThreadError('Could not load this ticket.')
+            }
+        },
+        [syncUnread]
+    )
 
     useEffect(() => {
         if (!isOpen) return
@@ -127,7 +133,10 @@ export default function FeedbackModal({
                 if (threadRef.current?.ticket.id !== ticketId) return
                 setThread(data)
                 markSeen(ticketId, data.ticket.last_admin_message_at)
-                void markFeedbackRead(ticketId, data.ticket.last_admin_message_at)
+                void markFeedbackRead(
+                    ticketId,
+                    data.ticket.last_admin_message_at
+                )
                 syncUnread()
                 setSeenVersion((v) => v + 1)
             } catch (err) {
@@ -169,19 +178,21 @@ export default function FeedbackModal({
 
     return (
         <div className='bg-opacity-50 fixed inset-0 z-[300] flex items-center justify-center bg-black/40 p-4'>
-            <div className='relative flex max-h-[90dvh] w-full max-w-md min-w-0 flex-col overflow-y-auto rounded-lg bg-white dark:bg-zinc-900 p-4 sm:p-6'>
+            <div className='relative flex max-h-[90dvh] w-full max-w-md min-w-0 flex-col overflow-y-auto rounded-lg bg-white p-4 sm:p-6 dark:bg-zinc-900'>
                 <div className='mb-6 flex items-center justify-between'>
                     <button
                         onClick={handleBack}
-                        className='flex h-8 cursor-pointer items-center justify-center gap-2 rounded-full bg-gray-100 dark:bg-zinc-800 px-3 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700'
+                        className='flex h-8 cursor-pointer items-center justify-center gap-2 rounded-full bg-gray-100 px-3 transition-colors hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                         aria-label='Go back'
                     >
                         <ArrowLeftIcon />
-                        <span className='text-sm text-gray-600 dark:text-zinc-400'>Go back</span>
+                        <span className='text-sm text-gray-600 dark:text-zinc-400'>
+                            Go back
+                        </span>
                     </button>
                     <button
                         onClick={onClose}
-                        className='flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700'
+                        className='flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                         aria-label='Close Feedback'
                     >
                         <svg
@@ -206,7 +217,7 @@ export default function FeedbackModal({
                             className={`${proximaNovaBold.className} mb-3 text-xl break-words uppercase`}
                         >
                             {activeTicketNumberLabel && (
-                                <span className='mr-2 font-mono text-base text-gray-500 dark:text-zinc-400 normal-case'>
+                                <span className='mr-2 font-mono text-base text-gray-500 normal-case dark:text-zinc-400'>
                                     {activeTicketNumberLabel}
                                 </span>
                             )}
@@ -270,7 +281,7 @@ export default function FeedbackModal({
                             ticket and we&apos;ll get back to you there.
                         </p>
 
-                        <div className='mt-4 flex rounded-full bg-gray-100 dark:bg-zinc-800 p-1'>
+                        <div className='mt-4 flex rounded-full bg-gray-100 p-1 dark:bg-zinc-800'>
                             <TabButton
                                 active={view === 'new'}
                                 onClick={() => setView('new')}
@@ -334,8 +345,8 @@ function TabButton({
             onClick={onClick}
             className={`flex flex-1 cursor-pointer items-center justify-center rounded-full px-3 py-1.5 text-sm transition-colors ${
                 active
-                    ? 'bg-white dark:bg-zinc-900 font-medium text-black dark:text-zinc-100 shadow-sm'
-                    : 'text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100'
+                    ? 'bg-white font-medium text-black shadow-sm dark:bg-zinc-900 dark:text-zinc-100'
+                    : 'text-gray-600 hover:text-black dark:text-zinc-400 dark:hover:text-zinc-100'
             }`}
         >
             {children}
