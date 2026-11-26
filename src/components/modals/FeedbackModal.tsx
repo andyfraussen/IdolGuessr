@@ -18,7 +18,6 @@ import {
     type StoredTicket,
 } from '@/utils/feedbackTickets'
 import { useAuth } from '@/components/auth/AuthProvider'
-import { getProfile, savePlayerSettings } from '@/lib/player'
 import { useTicketLiveUpdates } from '@/hooks/useTicketLiveUpdates'
 import NewTicketForm from '@/components/feedback/NewTicketForm'
 import TicketList from '@/components/feedback/TicketList'
@@ -32,14 +31,6 @@ import {
 const proximaNovaBold = localFont({
     src: '../../../public/fonts/proximanova_bold.otf',
 })
-
-function hasSeenFeedbackIntro(): boolean {
-    return Boolean(getProfile()?.seen_notices?.feedback_intro)
-}
-
-function markFeedbackIntroSeen(): void {
-    void savePlayerSettings({ seen_notices: { feedback_intro: true } })
-}
 
 interface FeedbackModalProps {
     isOpen: boolean
@@ -64,7 +55,6 @@ export default function FeedbackModal({
     const [threadError, setThreadError] = useState<string | null>(null)
     const [, setSeenVersion] = useState(0)
     const [storedTickets, setStoredTickets] = useState<StoredTicket[]>([])
-    const [showIntroPopup, setShowIntroPopup] = useState(false)
     const threadRef = useRef<FeedbackThread | null>(null)
     threadRef.current = thread
 
@@ -115,7 +105,6 @@ export default function FeedbackModal({
         if (!isOpen) return
         let cancelled = false
         setThread(null)
-        setShowIntroPopup(!hasSeenFeedbackIntro())
         void (async () => {
             const stored = getStoredTickets()
             if (!cancelled) setView(stored.length > 0 ? 'list' : 'new')
@@ -126,11 +115,6 @@ export default function FeedbackModal({
             cancelled = true
         }
     }, [isOpen, loadTickets])
-
-    const dismissIntroPopup = () => {
-        markFeedbackIntroSeen()
-        setShowIntroPopup(false)
-    }
 
     const handleLiveUpdate = useCallback(
         async (ticketId: string) => {
@@ -329,34 +313,6 @@ export default function FeedbackModal({
                             </div>
                         )}
                     </>
-                )}
-
-                {showIntroPopup && (
-                    <div
-                        className='absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-black/50 p-4'
-                        role='dialog'
-                        aria-labelledby='feedback-intro-title'
-                        aria-modal='true'
-                    >
-                        <div className='w-full max-w-sm rounded-lg bg-white dark:bg-zinc-900 p-6 shadow-lg'>
-                            <h2
-                                id='feedback-intro-title'
-                                className={`${proximaNovaBold.className} text-xl uppercase`}
-                            >
-                                Heads up!
-                            </h2>
-                            <p className='mt-3 text-base text-black dark:text-zinc-100'>
-                                You can now open a support ticket! Simply fill in the form and submit your feedback and you should see your ticket, I&apos;ll try to respond as fast as I can. :)
-                            </p>
-                            <button
-                                type='button'
-                                onClick={dismissIntroPopup}
-                                className='mt-5 w-full cursor-pointer rounded-full bg-pink-500 px-4 py-2 font-medium text-white transition-colors hover:bg-pink-600'
-                            >
-                                Got it
-                            </button>
-                        </div>
-                    </div>
                 )}
             </div>
         </div>

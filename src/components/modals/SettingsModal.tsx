@@ -159,7 +159,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                 Colorblind mode
                             </p>
                             <SettingInfo label='About colorblind colors'>
-                                Replaces green, yellow and red attribute colours
+                                Replaces green, yellow and red attribute colors
                                 with blue, orange and gray. If these are still
                                 hard to see, consider enabling &quot;Attribute
                                 icons&quot; below.
@@ -179,7 +179,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             <SettingInfo label='About attribute icons'>
                                 Shows a check, half-mark, or cross on Classic
                                 tiles. Higher and lower still use arrows. Turn
-                                this off to leave only the colours.
+                                this off to leave only the colors.
                             </SettingInfo>
                         </div>
                         <SettingSwitch

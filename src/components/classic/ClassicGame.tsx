@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'motion/react'
-import ColorLegend, { ProfileSourceNote } from '@/components/classic/ColorLegend'
+import ColorLegend, {
+    ProfileSourceNote,
+} from '@/components/classic/ColorLegend'
 import GuessGrid from '@/components/classic/GuessGrid'
 import { CLASSIC_REVEAL_MS } from '@/components/classic/GuessRow'
 import ClassicFilterModal from '@/components/classic/ClassicFilterModal'
@@ -26,7 +28,13 @@ import {
     type ClassicGroup,
     type ClassicMode,
 } from '@/lib/classic'
-import { getClassicGame, getProfile, playerReady, savePlayerSettings, subscribePlayer } from '@/lib/player'
+import {
+    getClassicGame,
+    getProfile,
+    playerReady,
+    savePlayerSettings,
+    subscribePlayer,
+} from '@/lib/player'
 
 function friendly(error: unknown) {
     const message =
@@ -92,11 +100,31 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
         return subscribePlayer(sync)
     }, [mode])
 
+    const playMoreArmed = useRef(false)
+
     const dismissHelp = (reopenInfo = false) => {
         setShowHelp(false)
         if (reopenInfo) setShowInfo(true)
         void savePlayerSettings({ seen_notices: { classic: true } })
     }
+
+    const offerPlayMore = useCallback(() => {
+        if (mode !== 'daily') return
+        if (!playerReady()) {
+            playMoreArmed.current = true
+            return
+        }
+        playMoreArmed.current = false
+        if (getProfile()?.seen_notices?.classic_infinite) return
+        setPlayMore(true)
+        void savePlayerSettings({ seen_notices: { classic_infinite: true } })
+    }, [mode])
+
+    useEffect(() => {
+        return subscribePlayer(() => {
+            if (playMoreArmed.current) offerPlayMore()
+        })
+    }, [offerPlayMore])
 
     useEffect(() => {
         const check = () => {
@@ -282,7 +310,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
             <div className='mx-auto w-full max-w-7xl px-4 pb-6'>
                 <div className='mx-auto mt-4 w-full max-w-md'>
                     <div className='mb-3 text-center'>
-                        <h1 className='relative flex gap-1.5 items-center justify-center text-5xl font-bold text-black dark:text-white'>
+                        <h1 className='relative flex items-center justify-center gap-1.5 text-5xl font-bold text-black dark:text-white'>
                             Classic
                             <ProfileSourceNote
                                 onReport={() => {
@@ -292,7 +320,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             />
                         </h1>
                         {mode === 'daily' && winCount !== null && (
-                            <p className='mt-2 text-sm italic text-gray-500 dark:text-zinc-400'>
+                            <p className='mt-2 text-sm text-gray-500 italic dark:text-zinc-400'>
                                 <span className='font-semibold text-pink-600 not-italic'>
                                     {winCount.toLocaleString()}
                                 </span>{' '}
@@ -329,7 +357,9 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             pending={busy && game?.status === 'in_progress'}
                             success={game?.status === 'won' && !revealHold}
                             keepGuess={game?.status === 'won'}
-                            lockedName={finished ? (game?.answer?.name ?? '') : ''}
+                            lockedName={
+                                finished ? (game?.answer?.name ?? '') : ''
+                            }
                             onPick={(idol) => void pick(idol)}
                         />
                     )}
@@ -361,17 +391,18 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             newestId={newestId}
                             onRevealEnd={finishReveal}
                         />
-                        {mode === 'infinite' && game?.status === 'in_progress' && (
-                            <div className='mt-4 flex justify-center'>
-                                <button
-                                    type='button'
-                                    onClick={() => setConfirmGiveUp(true)}
-                                    className='cursor-pointer rounded-full bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700'
-                                >
-                                    Give up
-                                </button>
-                            </div>
-                        )}
+                        {mode === 'infinite' &&
+                            game?.status === 'in_progress' && (
+                                <div className='mt-4 flex justify-center'>
+                                    <button
+                                        type='button'
+                                        onClick={() => setConfirmGiveUp(true)}
+                                        className='cursor-pointer rounded-full bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700'
+                                    >
+                                        Give up
+                                    </button>
+                                </div>
+                            )}
                         {finished && !resultOpen && !revealHold && (
                             <div className='mt-4 flex justify-center'>
                                 <button
@@ -401,7 +432,7 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                 dailyId={game?.dailyId ?? null}
                 onClose={() => {
                     setResultOpen(false)
-                    if (mode === 'daily') setPlayMore(true)
+                    offerPlayMore()
                 }}
                 onNext={() => void next()}
             />
@@ -454,24 +485,46 @@ export default function ClassicGame({ mode }: { mode: ClassicMode }) {
                             className='absolute top-4 right-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700'
                             aria-label='Close'
                         >
-                            <svg className='h-4 w-4 text-gray-600 dark:text-zinc-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                            <svg
+                                className='h-4 w-4 text-gray-600 dark:text-zinc-400'
+                                fill='none'
+                                stroke='currentColor'
+                                viewBox='0 0 24 24'
+                            >
+                                <path
+                                    strokeLinecap='round'
+                                    strokeLinejoin='round'
+                                    strokeWidth={2}
+                                    d='M6 18L18 6M6 6l12 12'
+                                />
                             </svg>
                         </button>
                         <h2
                             id='play-more-title'
-                            className='mt-6 text-2xl font-bold text-black dark:text-zinc-100'
+                            className='mt-6 text-xl font-bold text-black dark:text-zinc-100'
                         >
-                            Want to play more?
+                            Want more idols? Keep playing in Classic Infinite!
                         </h2>
                         <p className='mt-2 text-sm text-gray-600 dark:text-zinc-400'>
-                            Keep guessing idols in Classic Infinite.
+                            Can you guess them all?
                         </p>
                         <Link
                             href='/classic/infinite'
-                            className='mt-6 flex w-full items-center justify-center rounded-full bg-pink-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-pink-700'
+                            className='mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-pink-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-pink-700'
                         >
-                            Play Classic Infinite
+                            <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                width='24'
+                                height='24'
+                                viewBox='0 0 512 512'
+                                aria-hidden
+                            >
+                                <path
+                                    fill='currentColor'
+                                    d='M382 136c-40.87 0-73.46 20.53-93.6 37.76l-.71.61l-11.47 12.47l25.32 41.61l18.74-18.79C339.89 193.1 361.78 184 382 184c40.8 0 74 32.3 74 72s-33.2 72-74 72c-62 0-104.14-81.95-104.56-82.78C275 240.29 221.56 136 130 136C62.73 136 8 189.83 8 256s54.73 120 122 120c32.95 0 65.38-13.11 93.79-37.92l.61-.54l11.38-12.38l-25.33-41.61l-18.83 18.88C172 319.4 151.26 328 130 328c-40.8 0-74-32.3-74-72s33.2-72 74-72c62 0 104.14 81.95 104.56 82.78C237 271.71 290.44 376 382 376c67.27 0 122-53.83 122-120s-54.73-120-122-120'
+                                />
+                            </svg>
+                            Play Infinite
                         </Link>
                     </motion.div>
                 </div>
@@ -556,8 +609,18 @@ function GiveUpModal({
 
 function CloseIcon() {
     return (
-        <svg className='h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+        <svg
+            className='h-4 w-4'
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+        >
+            <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M6 18L18 6M6 6l12 12'
+            />
         </svg>
     )
 }
