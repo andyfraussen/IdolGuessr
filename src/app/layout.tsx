@@ -14,6 +14,19 @@ const proximaNovaRegular = localFont({
     src: '../../public/fonts/proximanova_regular.ttf',
 })
 
+const PRODUCTION_SITE = 'https://idolguessr.fun'
+const TEST_SITE = 'https://j390jefj890wef.vercel.app'
+
+function siteOrigin() {
+    const vercelUrl = process.env.VERCEL_URL ?? ''
+    if (vercelUrl.includes('j390jefj890wef')) return TEST_SITE
+    const vercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV
+    const isTest = vercelEnv ? vercelEnv !== 'production' : process.env.NODE_ENV !== 'production'
+    return isTest ? TEST_SITE : PRODUCTION_SITE
+}
+
+const shareImage = `${siteOrigin()}/images/og-image.png`
+
 export const metadata: Metadata = {
     metadataBase: new URL('https://idolguessr.fun'),
     title: {
@@ -79,7 +92,8 @@ export const metadata: Metadata = {
         title: 'IdolGuessr - K-pop Idol Guessing Game',
         description:
             'Guess your favourite K-pop idols through clues, pixelated images and much more!',
-        images: ['https://idolguessr.fun/images/og-image.png'],
+        images: [shareImage],
+        site: 'IdolGuessr'
     },
     openGraph: {
         title: 'IdolGuessr - K-pop Idol Guessing Game',
@@ -87,12 +101,13 @@ export const metadata: Metadata = {
             'Guess your favourite K-pop idols through clues, pixelated images and much more!',
         images: [
             {
-                url: 'https://idolguessr.fun/images/og-image.png',
+                url: shareImage,
                 width: 1200,
                 height: 630,
                 alt: 'IdolGuessr - K-pop Idol Guessing Game',
             },
         ],
+        siteName: 'IdolGuessr',
     },
 }
 
