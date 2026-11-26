@@ -104,7 +104,7 @@ export const metadata: Metadata = {
                 url: shareImage,
                 width: 1200,
                 height: 630,
-                alt: 'IdolGuessr - K-pop Idol Guessing Game',
+                alt: 'Play now on IdolGuessr',
             },
         ],
         siteName: 'IdolGuessr',
