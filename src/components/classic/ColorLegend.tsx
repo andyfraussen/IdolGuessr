@@ -64,7 +64,7 @@ export function ProfileSourceNote({ onReport }: { onReport?: () => void }) {
                 aria-expanded={shown}
                 aria-label='About these profiles'
                 onClick={() => setPinned((current) => !current)}
-                className='flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-gray-300 text-base font-bold text-gray-500 hover:border-gray-400 hover:text-gray-700 dark:border-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-200'
+                className='flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-pink-500 bg-pink-500/20 text-base font-bold text-pink-600 hover:bg-pink-500/30 dark:text-pink-400'
             >
                 ?
             </button>
