@@ -69,6 +69,14 @@ function SettingInfo({ label, children }: { label: string; children: string }) {
     )
 }
 
+function NewBadge() {
+    return (
+        <span className='shrink-0 rounded-full bg-pink-500 px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide text-white uppercase'>
+            New
+        </span>
+    )
+}
+
 function SettingSwitch({
     checked,
     label,
@@ -158,6 +166,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             <p className='text-sm font-semibold text-black md:text-lg dark:text-zinc-100'>
                                 Colorblind mode
                             </p>
+                            <NewBadge />
                             <SettingInfo label='About colorblind colors'>
                                 Replaces green, yellow and red attribute colors
                                 with blue, orange and gray. If these are still
@@ -176,6 +185,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             <p className='text-sm font-semibold text-black md:text-lg dark:text-zinc-100'>
                                 Attribute icons
                             </p>
+                            <NewBadge />
                             <SettingInfo label='About attribute icons'>
                                 Shows a check, half-mark, or cross on Classic
                                 tiles. Higher and lower still use arrows. Turn
