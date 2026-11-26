@@ -37,7 +37,7 @@ export function ColorblindProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const apply = () => {
             setColorblindState(storedFlag(COLORBLIND_KEY, 'colorblind', false))
-            setAttributeIconsState(storedFlag(ATTRIBUTE_ICONS_KEY, 'attribute_icons', true))
+            setAttributeIconsState(storedFlag(ATTRIBUTE_ICONS_KEY, 'attribute_icons', false))
         }
         apply()
         return subscribePlayer(apply)
