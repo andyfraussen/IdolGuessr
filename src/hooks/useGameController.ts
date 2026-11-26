@@ -1049,7 +1049,7 @@ export function useGameController(initialDaily?: CurrentDaily | null) {
                                             unlimitedStats.stats.currentStreak
                                         setLostStreak(currentStreak)
                                         if (
-                                            currentStreak >= 1 &&
+                                            currentStreak >= 5 &&
                                             !hasTrackedCurrentGame.current
                                         ) {
                                             void trackUnlimitedGame(
