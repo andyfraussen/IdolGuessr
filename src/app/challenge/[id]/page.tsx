@@ -17,6 +17,8 @@ import ChallengeProgress from '@/components/challenge/ChallengeProgress'
 import ChallengeCompleteModal from '@/components/challenge/ChallengeCompleteModal'
 import ChallengeIntroModal from '@/components/challenge/ChallengeIntroModal'
 import { useChallengeController } from '@/hooks/useChallengeController'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 import { useAuth } from '@/components/auth/AuthProvider'
 
 const posthogConfigured = Boolean(
@@ -24,7 +26,12 @@ const posthogConfigured = Boolean(
         process.env.NEXT_PUBLIC_POSTHOG_HOST
 )
 
-export default function ChallengePlayPage() {
+export default function ChallengePlayRoute() {
+    if (!supabaseConfigured()) return <NeedsSupabase mode='Challenge' />
+    return <ChallengePlayPage />
+}
+
+function ChallengePlayPage() {
     const params = useParams()
     const router = useRouter()
     const { isGuest, profile } = useAuth()

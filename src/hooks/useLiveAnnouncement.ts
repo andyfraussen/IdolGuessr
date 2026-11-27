@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getActiveAnnouncement, supabase, type Announcement } from '@/lib/supabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 import { randomId } from '@/utils/randomId'
 
 export function useLiveAnnouncement(): Announcement | null {
@@ -20,6 +21,7 @@ export function useLiveAnnouncement(): Announcement | null {
             }
         }
 
+        if (!supabaseConfigured()) return
         load()
         // A new topic each mount. Reusing "live-announcements" returns the channel
         // React just closed, and subscribe() on that channel never joins.

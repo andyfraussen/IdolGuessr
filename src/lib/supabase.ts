@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Session } from '@supabase/supabase-js'
 import {
     INFINITE_GEN_VALUES,
@@ -11,7 +12,7 @@ import {
     rememberBrowserSession,
     withBackupAccessToken,
 } from '@/lib/browserSession'
-import { supabaseAnonKey, supabaseUrl } from '@/lib/supabase/env'
+import { imageHost, supabaseAnonKey, supabaseConfigured, supabaseUrl } from '@/lib/supabase/env'
 import { randomId } from '@/utils/randomId'
 import {
     loadCurrentDaily,
@@ -55,16 +56,95 @@ async function browserFetch(
     return browserFetch(input, init, false)
 }
 
-export const supabase = createBrowserClient(supabaseUrl(), supabaseAnonKey(), {
-    global: {
-        fetch: (input, init) => {
-            if (typeof window === 'undefined') return fetch(input, init)
-            return browserFetch(input, init, true)
+function unavailableSupabase(): SupabaseClient {
+    const error = { message: 'supabase_unconfigured' }
+    const settled = Promise.resolve({ data: null, error, count: null })
+    const query = () => {
+        const builder: Record<string, unknown> = {}
+        const chain = () => builder
+        for (const method of [
+            'select',
+            'insert',
+            'update',
+            'upsert',
+            'delete',
+            'eq',
+            'neq',
+            'gt',
+            'gte',
+            'lt',
+            'lte',
+            'like',
+            'ilike',
+            'is',
+            'in',
+            'contains',
+            'order',
+            'limit',
+            'range',
+            'match',
+            'filter',
+            'or',
+            'not',
+        ]) {
+            builder[method] = chain
+        }
+        builder.single = async () => ({ data: null, error })
+        builder.maybeSingle = async () => ({ data: null, error })
+        builder.then = (
+            resolve: (value: unknown) => unknown,
+            reject: (reason: unknown) => unknown
+        ) => settled.then(resolve, reject)
+        return builder
+    }
+    const channel = () => {
+        const socket: Record<string, unknown> = {}
+        socket.on = () => socket
+        socket.subscribe = (callback?: (status: string) => void) => {
+            callback?.('CLOSED')
+            return socket
+        }
+        socket.track = async () => 'ok'
+        socket.send = async () => 'ok'
+        socket.unsubscribe = async () => 'ok'
+        return socket
+    }
+    return {
+        auth: {
+            getSession: async () => ({ data: { session: null }, error: null }),
+            getUser: async () => ({ data: { user: null }, error: null }),
+            onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
+            signInAnonymously: async () => ({ data: { session: null, user: null }, error }),
+            signInWithOAuth: async () => ({ data: {}, error }),
+            signInWithPassword: async () => ({ data: {}, error }),
+            signOut: async () => ({ error: null }),
+            setSession: async () => ({ data: { session: null }, error }),
+            refreshSession: async () => ({ data: { session: null }, error }),
+            exchangeCodeForSession: async () => ({ data: { session: null }, error }),
+            verifyOtp: async () => ({ data: {}, error }),
+            linkIdentity: async () => ({ data: {}, error }),
+            updateUser: async () => ({ data: { user: null }, error }),
+            signInWithOtp: async () => ({ data: {}, error }),
         },
-    },
-})
+        from: query,
+        rpc: async () => ({ data: null, error }),
+        channel,
+        removeChannel: async () => 'ok',
+    } as unknown as SupabaseClient
+}
 
-if (typeof window !== 'undefined') {
+export const supabase: SupabaseClient = supabaseConfigured()
+    ? createBrowserClient(supabaseUrl(), supabaseAnonKey(), {
+          global: {
+              fetch: (input, init) => {
+                  if (typeof window === 'undefined') return fetch(input, init)
+                  return browserFetch(input, init, true)
+              },
+          },
+      })
+    : unavailableSupabase()
+
+if (typeof window !== 'undefined' && supabaseConfigured()) {
     supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.access_token) rememberBrowserSession(session)
     })
@@ -97,7 +177,7 @@ export function ensureBrowserSession(): Promise<Session | null> {
 }
 
 async function ensureBrowserSessionOnce(): Promise<Session | null> {
-    if (typeof window === 'undefined') return null
+    if (typeof window === 'undefined' || !supabaseConfigured()) return null
     const { data } = await supabase.auth.getSession()
     if (data.session?.access_token) {
         rememberBrowserSession(data.session)
@@ -639,8 +719,7 @@ export async function adminClearAnnouncement(): Promise<void> {
 }
 
 function publicImageUrl(objectPath: string): string {
-    const normalizedUrl = supabaseUrl().replace(/\/+$/, '')
-    return `${normalizedUrl}/storage/v1/object/public/${objectPath}`
+    return `${imageHost()}/storage/v1/object/public/${objectPath}`
 }
 
 export function getImageUrl(

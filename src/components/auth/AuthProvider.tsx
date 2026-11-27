@@ -9,6 +9,7 @@ import {
 } from 'react'
 import posthog from 'posthog-js'
 import { ensureBrowserSession, setAccountId } from '@/lib/supabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 import {
     getProfile,
     importLegacyProgress,
@@ -110,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 signOut,
             }}
         >
-            {error ? (
+            {error && supabaseConfigured() ? (
                 <p className='bg-amber-50 px-4 py-2 text-center text-sm text-amber-900'>
                     Sign-in is unavailable right now. Anonymous accounts need to be turned on for this project.
                 </p>

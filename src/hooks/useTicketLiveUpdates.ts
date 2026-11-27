@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 
 interface TicketRef {
     id: string
@@ -20,7 +21,7 @@ export function useTicketLiveUpdates(
         .join(',')
 
     useEffect(() => {
-        if (!enabled || !key) return
+        if (!enabled || !key || !supabaseConfigured()) return
         const channels = key.split(',').map((entry) => {
             const [id, token] = entry.split(':')
             return supabase

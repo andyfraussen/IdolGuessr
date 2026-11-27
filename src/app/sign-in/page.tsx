@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { saveNickname } from '@/lib/player'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 
 function errorText(error: unknown, fallback: string) {
     if (error instanceof Error && error.message) {
@@ -71,7 +73,12 @@ const signInPortraits: {
     },
 ]
 
-export default function SignInPage() {
+export default function SignInRoute() {
+    if (!supabaseConfigured()) return <NeedsSupabase mode='Sign in' />
+    return <SignInPage />
+}
+
+function SignInPage() {
     const router = useRouter()
     const { profile, isGuest, signInWithGoogle } = useAuth()
     const [sentEmail, setSentEmail] = useState('')
