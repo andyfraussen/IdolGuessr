@@ -58,13 +58,57 @@ async function browserFetch(
 
 function unavailableSupabase(): SupabaseClient {
     const error = { message: 'supabase_unconfigured' }
-    const result = Promise.resolve({ data: null, error })
-    const query = new Proxy(function query() {
-        return query
-    }, {
-        get: () => () => result,
-        apply: () => query,
-    })
+    const settled = Promise.resolve({ data: null, error, count: null })
+    const query = () => {
+        const builder: Record<string, unknown> = {}
+        const chain = () => builder
+        for (const method of [
+            'select',
+            'insert',
+            'update',
+            'upsert',
+            'delete',
+            'eq',
+            'neq',
+            'gt',
+            'gte',
+            'lt',
+            'lte',
+            'like',
+            'ilike',
+            'is',
+            'in',
+            'contains',
+            'order',
+            'limit',
+            'range',
+            'match',
+            'filter',
+            'or',
+            'not',
+        ]) {
+            builder[method] = chain
+        }
+        builder.single = async () => ({ data: null, error })
+        builder.maybeSingle = async () => ({ data: null, error })
+        builder.then = (
+            resolve: (value: unknown) => unknown,
+            reject: (reason: unknown) => unknown
+        ) => settled.then(resolve, reject)
+        return builder
+    }
+    const channel = () => {
+        const socket: Record<string, unknown> = {}
+        socket.on = () => socket
+        socket.subscribe = (callback?: (status: string) => void) => {
+            callback?.('CLOSED')
+            return socket
+        }
+        socket.track = async () => 'ok'
+        socket.send = async () => 'ok'
+        socket.unsubscribe = async () => 'ok'
+        return socket
+    }
     return {
         auth: {
             getSession: async () => ({ data: { session: null }, error: null }),
@@ -76,15 +120,16 @@ function unavailableSupabase(): SupabaseClient {
             signOut: async () => ({ error: null }),
             setSession: async () => ({ data: { session: null }, error }),
             refreshSession: async () => ({ data: { session: null }, error }),
+            exchangeCodeForSession: async () => ({ data: { session: null }, error }),
+            verifyOtp: async () => ({ data: {}, error }),
+            linkIdentity: async () => ({ data: {}, error }),
+            updateUser: async () => ({ data: { user: null }, error }),
+            signInWithOtp: async () => ({ data: {}, error }),
         },
-        from() {
-            return query
-        },
+        from: query,
         rpc: async () => ({ data: null, error }),
-        channel() {
-            return query
-        },
-        removeChannel: async () => {},
+        channel,
+        removeChannel: async () => 'ok',
     } as unknown as SupabaseClient
 }
 
