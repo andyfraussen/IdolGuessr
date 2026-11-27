@@ -45,6 +45,8 @@ next-env.d.ts
 
 schema_export
 migrations
+!supabase/migrations/
+!supabase/migrations/**
 *.yaml
 
 /api/node_modules

@@ -6,6 +6,7 @@ interface VisualModeModalProps {
     onDaily: () => void
     onInfinite: () => void
     onChallenge: () => void
+    onLive: () => void
 }
 
 export default function VisualModeModal({
@@ -14,6 +15,7 @@ export default function VisualModeModal({
     onDaily,
     onInfinite,
     onChallenge,
+    onLive,
 }: VisualModeModalProps) {
     if (!open) return null
 
@@ -76,6 +78,14 @@ export default function VisualModeModal({
                         <ChallengeIcon />
                         Challenge
                     </button>
+                    <button
+                        type='button'
+                        onClick={onLive}
+                        className='flex w-[200px] cursor-pointer items-center justify-center gap-2 rounded-full bg-pink-600 px-4 py-1.5 font-semibold text-white transition-colors hover:bg-pink-700'
+                    >
+                        <LiveIcon />
+                        Live room
+                    </button>
                 </div>
             </div>
         </div>
@@ -117,6 +127,28 @@ function ChallengeIcon() {
             <path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22' />
             <path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22' />
             <path d='M18 2H6v7a6 6 0 0 0 12 0V2Z' />
+        </svg>
+    )
+}
+
+function LiveIcon() {
+    return (
+        <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='24'
+            height='24'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            aria-hidden
+        >
+            <path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' />
+            <circle cx='9' cy='7' r='4' />
+            <path d='M22 21v-2a4 4 0 0 0-3-3.87' />
+            <path d='M16 3.13a4 4 0 0 1 0 7.75' />
         </svg>
     )
 }

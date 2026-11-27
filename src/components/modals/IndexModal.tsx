@@ -11,6 +11,7 @@ interface IndexModalProps {
     onInfinite: () => void
     onHangul: () => void
     onChallenge?: () => void
+    onLive?: () => void
     onUnshuffled?: () => void
     onUnshuffledDaily?: () => void
     onClassic?: () => void
@@ -23,6 +24,7 @@ export default function IndexModal({
     onInfinite,
     onHangul,
     onChallenge,
+    onLive,
     onUnshuffled,
     onUnshuffledDaily,
     onClassic,
@@ -163,6 +165,7 @@ export default function IndexModal({
                 onDaily={handleDaily}
                 onInfinite={handleInfinite}
                 onChallenge={() => onChallenge?.()}
+                onLive={() => onLive?.()}
             />
             <UnshuffledModeModal
                 open={unshuffledOpen}

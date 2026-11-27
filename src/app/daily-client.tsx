@@ -694,6 +694,9 @@ export default function DailyClient({
                 onChallenge={() => {
                     router.push('/challenge', { scroll: false })
                 }}
+                onLive={() => {
+                    router.push('/multiplayer', { scroll: false })
+                }}
                 onUnshuffled={() => {
                     router.push('/unshuffled/infinite', { scroll: false })
                 }}
