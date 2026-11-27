@@ -48,6 +48,8 @@ export default function MultiplayerRoomPage() {
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
     const seenStatus = useRef(new Map<string, string>())
     const guessLock = useRef(false)
+    const guessRef = useRef('')
+    const [keptGuesses, setKeptGuesses] = useState<string[]>([])
 
     useEffect(() => {
         const measure = () =>
@@ -89,7 +91,9 @@ export default function MultiplayerRoomPage() {
     }, [room])
 
     useEffect(() => {
+        guessRef.current = ''
         setCurrentGuess('')
+        setKeptGuesses([])
         setLastIncorrect('')
         setNotInList(false)
         setAnimating(false)
@@ -109,7 +113,9 @@ export default function MultiplayerRoomPage() {
     const maxGuesses = getDifficultyConfig(
         room?.settings.difficulty ?? 'normal'
     ).maxGuesses
-    const myGuesses = useMemo(() => me?.guesses ?? [], [me?.guesses])
+    const serverGuesses = me?.guesses ?? []
+    const myGuesses =
+        serverGuesses.length >= keptGuesses.length ? serverGuesses : keptGuesses
     const canGuess =
         room?.status === 'playing' && me?.status === 'in_progress' && !busy
     const roundEnded = room?.status === 'between_rounds'
@@ -139,6 +145,13 @@ export default function MultiplayerRoomPage() {
         try {
             const next = await roomApi.submit(normalized)
             const player = next.players.find((row) => row.user_id === next.you)
+            const recorded = player?.guesses ?? []
+            if (recorded.length > 0) {
+                setKeptGuesses((current) =>
+                    recorded.length >= current.length ? recorded : current
+                )
+            }
+            guessRef.current = ''
             setCurrentGuess('')
             if (player?.status !== 'won') {
                 setLastIncorrect(normalized)
@@ -160,17 +173,47 @@ export default function MultiplayerRoomPage() {
     const onKey = (key: string) => {
         if (!canGuess) return
         if (key === 'ENTER') {
-            void submitGuess(currentGuess)
+            void submitGuess(guessRef.current)
             return
         }
         if (key === '✕') {
-            setCurrentGuess((value) => value.slice(0, -1))
+            guessRef.current = guessRef.current.slice(0, -1)
+            setCurrentGuess(guessRef.current)
             return
         }
-        if (currentGuess.length >= 20 || animating) return
+        if (guessRef.current.length >= 20 || animating) return
         if (lastIncorrect) setLastIncorrect('')
-        setCurrentGuess((value) => value + key)
+        guessRef.current += key
+        setCurrentGuess(guessRef.current)
     }
+    const onKeyRef = useRef(onKey)
+    onKeyRef.current = onKey
+
+    useEffect(() => {
+        if (!inputModeReady || inputMode !== 'keyboard') return
+        const onPhysicalKey = (event: KeyboardEvent) => {
+            const target = event.target as HTMLElement | null
+            if (
+                target &&
+                (target.tagName === 'INPUT' ||
+                    target.tagName === 'TEXTAREA' ||
+                    target.tagName === 'SELECT' ||
+                    target.isContentEditable)
+            ) {
+                return
+            }
+            if (event.repeat) return
+            const key = event.key.toUpperCase()
+            if (key === 'ENTER' || key === 'BACKSPACE' || /^[A-Z0-9]$/.test(key)) {
+                event.preventDefault()
+            }
+            if (key === 'ENTER') onKeyRef.current('ENTER')
+            else if (key === 'BACKSPACE') onKeyRef.current('✕')
+            else if (/^[A-Z0-9]$/.test(key)) onKeyRef.current(key)
+        }
+        window.addEventListener('keydown', onPhysicalKey)
+        return () => window.removeEventListener('keydown', onPhysicalKey)
+    }, [inputMode, inputModeReady])
 
     const hostAction = async (action: () => Promise<RoomSnapshot>) => {
         if (busy) return
