@@ -13,9 +13,17 @@ import {
 
 const POLL_MS = 2000
 
+function ownGuesses(room: RoomSnapshot): number {
+    return (
+        room.players.find((player) => player.user_id === room.you)?.guesses
+            ?.length ?? 0
+    )
+}
+
 function newer(current: RoomSnapshot | null, next: RoomSnapshot): RoomSnapshot {
     if (!current || next.revision > current.revision) return next
     if (next.revision < current.revision) return current
+    if (ownGuesses(next) < ownGuesses(current)) return current
     return JSON.stringify(current) === JSON.stringify(next) ? current : next
 }
 

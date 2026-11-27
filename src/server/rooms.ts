@@ -1,5 +1,6 @@
 import 'server-only'
 import catalog from '@/server/roomIdols.json'
+import idolNames from '@/data/idolNames.json'
 import { withTx, type Sql } from '@/lib/db'
 import type {
     RoomIdol,
@@ -21,6 +22,11 @@ type CatalogIdol = {
 }
 
 const idols = catalog as CatalogIdol[]
+const stageNames = new Set(
+    (idolNames as string[])
+        .map((name) => nameKey(name))
+        .filter((name): name is string => name !== null)
+)
 
 export class RoomError extends Error {
     constructor(code: string) {
@@ -70,6 +76,9 @@ function namesMatch(guess: string, candidate: string | null | undefined): boolea
 }
 
 function knownName(guess: string): boolean {
+    const key = nameKey(guess)
+    if (!key) return false
+    if (stageNames.has(key)) return true
     return idols.some((idol) => namesMatch(guess, idol.name))
 }
 
@@ -440,7 +449,9 @@ export async function submitGuess(
             [room.id, userId, JSON.stringify(nextGuesses), status, status === 'won' ? 1 : 0]
         )
         let members = await membersOf(query, room.id)
-        if (status !== 'in_progress') {
+        if (status === 'in_progress') {
+            await bump(query, room)
+        } else {
             const finished = await maybeFinish(query, room, members)
             if (!finished) await bump(query, room)
             if (finished) members = await membersOf(query, room.id)
