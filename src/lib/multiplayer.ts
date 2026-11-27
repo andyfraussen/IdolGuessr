@@ -1,4 +1,3 @@
-import { ensureBrowserSession, supabase } from '@/lib/supabase'
 import {
     INFINITE_GEN_VALUES,
     isValidInfiniteGenFilter,
@@ -37,6 +36,7 @@ export interface RoomPlayer {
     display_name: string
     status?: PlayerStatus
     wins: number
+    here?: boolean
     guesses?: string[]
 }
 
@@ -197,6 +197,7 @@ function parsePlayer(value: unknown): RoomPlayer | null {
             ? { status }
             : {}),
         wins: typeof value.wins === 'number' ? value.wins : 0,
+        ...(typeof value.here === 'boolean' ? { here: value.here } : {}),
         ...(Array.isArray(value.guesses)
             ? {
                   guesses: value.guesses.filter(
@@ -255,55 +256,76 @@ function safeJson(value: string): unknown {
     }
 }
 
-function knownCode(message: string): string | null {
-    return ROOM_ERRORS.find((code) => message.includes(code)) ?? null
-}
-
-async function callRpc(
-    name: string,
-    args: Record<string, unknown>
+async function callRoom(
+    path: string,
+    init?: { method?: string; body?: unknown }
 ): Promise<unknown> {
-    await ensureBrowserSession()
-    const { data, error } = await supabase.rpc(name, args)
-    if (error) {
-        const code = knownCode(error.message)
-        if (!code) console.error(name, error)
-        throw new Error(code ?? 'request_failed')
+    const response = await fetch(path, {
+        method: init?.method ?? 'GET',
+        headers: init?.body ? { 'content-type': 'application/json' } : undefined,
+        body: init?.body ? JSON.stringify(init.body) : undefined,
+    })
+    const payload = (await response.json().catch(() => null)) as {
+        error?: string
+    } | null
+    if (!response.ok) {
+        const code = payload?.error
+        if (!code || !ROOM_ERRORS.includes(code as (typeof ROOM_ERRORS)[number])) {
+            console.error(path, payload)
+        }
+        throw new Error(
+            code && ROOM_ERRORS.includes(code as (typeof ROOM_ERRORS)[number])
+                ? code
+                : 'request_failed'
+        )
     }
-    return data
+    return payload
 }
 
 export async function createRoom(
-    settings: VisualRoomSettings
+    settings: VisualRoomSettings,
+    displayName?: string
 ): Promise<string> {
-    const data = await callRpc('create_room', {
-        p_mode: 'visual',
-        p_settings: settings,
-    })
-    const code = text(data)
-    if (!code) throw new Error('request_failed')
-    return code
+    const data = parseRoom(
+        await callRoom('/api/multiplayer', {
+            method: 'POST',
+            body: { settings, displayName },
+        })
+    )
+    return data.code
 }
 
 export async function joinRoom(code: string): Promise<RoomSnapshot> {
     return parseRoom(
-        await callRpc('join_room', { p_code: normalizeRoomCode(code) })
+        await callRoom(`/api/multiplayer/${normalizeRoomCode(code)}/join`, {
+            method: 'POST',
+            body: {},
+        })
     )
 }
 
 export async function leaveRoom(code: string): Promise<void> {
-    await callRpc('leave_room', { p_code: normalizeRoomCode(code) })
+    await callRoom(`/api/multiplayer/${normalizeRoomCode(code)}/leave`, {
+        method: 'POST',
+        body: {},
+    })
 }
 
 export async function startRound(code: string): Promise<RoomSnapshot> {
     return parseRoom(
-        await callRpc('start_round', { p_code: normalizeRoomCode(code) })
+        await callRoom(`/api/multiplayer/${normalizeRoomCode(code)}/start`, {
+            method: 'POST',
+            body: {},
+        })
     )
 }
 
 export async function advanceRound(code: string): Promise<RoomSnapshot> {
     return parseRoom(
-        await callRpc('advance_round', { p_code: normalizeRoomCode(code) })
+        await callRoom(`/api/multiplayer/${normalizeRoomCode(code)}/advance`, {
+            method: 'POST',
+            body: {},
+        })
     )
 }
 
@@ -312,16 +334,16 @@ export async function submitRoomGuess(
     guess: string
 ): Promise<RoomSnapshot> {
     return parseRoom(
-        await callRpc('submit_room_guess', {
-            p_code: normalizeRoomCode(code),
-            p_guess: guess,
+        await callRoom(`/api/multiplayer/${normalizeRoomCode(code)}/guess`, {
+            method: 'POST',
+            body: { guess },
         })
     )
 }
 
 export async function getRoom(code: string): Promise<RoomSnapshot> {
     return parseRoom(
-        await callRpc('get_room', { p_code: normalizeRoomCode(code) })
+        await callRoom(`/api/multiplayer/${normalizeRoomCode(code)}`)
     )
 }
 

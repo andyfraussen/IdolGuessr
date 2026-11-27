@@ -18,12 +18,7 @@ import {
     type ImageMode,
     type InfiniteDifficulty,
 } from '@/utils/difficulty'
-import {
-    DEFAULT_INFINITE_GEN_FILTER,
-    INFINITE_GEN_OPTIONS,
-    INFINITE_GEN_VALUES,
-    isValidInfiniteGenFilter,
-} from '@/utils/genFilter'
+import { DEFAULT_INFINITE_GEN_FILTER } from '@/utils/genFilter'
 
 type GroupFilter = 'boy-group' | 'girl-group' | 'both'
 
@@ -40,7 +35,7 @@ export default function MultiplayerCreatePage() {
     const [difficulty, setDifficulty] = useState<InfiniteDifficulty>('normal')
     const [imageMode, setImageMode] = useState<ImageMode>('pixelated')
     const [groupFilter, setGroupFilter] = useState<GroupFilter>('both')
-    const [gens, setGens] = useState<number[]>(DEFAULT_INFINITE_GEN_FILTER)
+    const [name, setName] = useState('')
     const [joinCode, setJoinCode] = useState('')
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -58,19 +53,7 @@ export default function MultiplayerCreatePage() {
         ) {
             setGroupFilter(profile.group_filter)
         }
-        if (isValidInfiniteGenFilter(profile.gen_filter))
-            setGens(profile.gen_filter)
     }, [])
-
-    const toggleGen = (gen: number) => {
-        setGens((current) => {
-            if (current.includes(gen)) {
-                if (current.length === 1) return current
-                return current.filter((value) => value !== gen)
-            }
-            return [...current, gen].sort((a, b) => a - b)
-        })
-    }
 
     const create = async () => {
         if (busy) return
@@ -82,8 +65,9 @@ export default function MultiplayerCreatePage() {
                     difficulty,
                     imageMode,
                     groupFilter,
-                    genFilter: gens,
-                })
+                    genFilter: DEFAULT_INFINITE_GEN_FILTER,
+                }),
+                name
             )
             router.push(`/multiplayer/${code}`)
         } catch (err) {
@@ -167,26 +151,20 @@ export default function MultiplayerCreatePage() {
                     </div>
                 </fieldset>
 
-                <fieldset className='mt-4'>
-                    <legend className='mb-2 text-sm font-medium text-gray-700 dark:text-zinc-300'>
-                        Generations
-                    </legend>
-                    <div className='grid grid-cols-4 gap-2'>
-                        {INFINITE_GEN_OPTIONS.map((option) => (
-                            <Choice
-                                key={option.value}
-                                selected={gens.includes(option.value)}
-                                onClick={() => toggleGen(option.value)}
-                                label={option.label.replace('Gen ', '')}
-                            />
-                        ))}
-                    </div>
-                    <p className='mt-1 text-xs text-gray-500 dark:text-zinc-500'>
-                        {gens.length === INFINITE_GEN_VALUES.length
-                            ? 'All generations'
-                            : gens.map((gen) => `Gen ${gen}`).join(', ')}
-                    </p>
-                </fieldset>
+                <p className='mt-3 text-xs text-gray-500 dark:text-zinc-500'>
+                    Every generation is in this shared set.
+                </p>
+
+                <label className='mt-6 block text-sm font-medium text-gray-700 dark:text-zinc-300'>
+                    Your name
+                    <input
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        placeholder='Guest'
+                        maxLength={24}
+                        className='mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900'
+                    />
+                </label>
 
                 <button
                     type='button'
