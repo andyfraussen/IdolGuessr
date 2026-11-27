@@ -12,6 +12,8 @@ import {
     type InfiniteDifficulty,
 } from '@/utils/difficulty'
 import Image from 'next/image'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 
 const TABS = [
     { id: 'daily', label: 'Daily' },
@@ -191,7 +193,12 @@ function OptionGroup({
     )
 }
 
-export default function LeaderboardPage() {
+export default function LeaderboardRoute() {
+    if (!supabaseConfigured()) return <NeedsSupabase mode='Leaderboard' />
+    return <LeaderboardPage />
+}
+
+function LeaderboardPage() {
     const { profile, isGuest } = useAuth()
     const needsNickname = !profile?.nickname?.trim()
     const [tab, setTab] = useState<Tab>('daily')

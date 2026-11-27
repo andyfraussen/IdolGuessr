@@ -12,6 +12,8 @@ import {
     type InfiniteDifficulty,
 } from '@/utils/difficulty'
 import Image from 'next/image'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 
 const MODES = [
     { mode: 'daily', label: 'Daily' },
@@ -57,7 +59,12 @@ function winRate(row: StreakRow): number {
     return Math.round((row.total_wins / row.total_games) * 100)
 }
 
-export default function ProfilePage() {
+export default function ProfileRoute() {
+    if (!supabaseConfigured()) return <NeedsSupabase mode='Profile' />
+    return <ProfilePage />
+}
+
+function ProfilePage() {
     const { profile, isGuest, signOut } = useAuth()
     const streaks = getStreaks()
     const [mode, setMode] = useState<GameMode>('daily')

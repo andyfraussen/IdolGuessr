@@ -12,6 +12,7 @@ interface IndexModalProps {
     onHangul: () => void
     onChallenge?: () => void
     onLive?: () => void
+    offline?: boolean
     onUnshuffled?: () => void
     onUnshuffledDaily?: () => void
     onClassic?: () => void
@@ -25,6 +26,7 @@ export default function IndexModal({
     onHangul,
     onChallenge,
     onLive,
+    offline = false,
     onUnshuffled,
     onUnshuffledDaily,
     onClassic,
@@ -154,6 +156,13 @@ export default function IndexModal({
                     </div>
                 </div>
 
+                {offline ? (
+                    <p className='mt-6 max-w-lg text-sm text-gray-600 dark:text-zinc-400'>
+                        Live room is ready. Daily, Infinite, Hangul, Classic,
+                        Challenge, and Unshuffled need the Supabase connection
+                        before they can load a puzzle.
+                    </p>
+                ) : null}
                 <h1 className='mt-6 text-xl font-bold'>
                     {todayLabel ?? '\u00A0'}
                 </h1>

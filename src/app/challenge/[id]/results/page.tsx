@@ -14,8 +14,15 @@ import {
 } from '@/lib/supabase'
 import { formatGenFilter } from '@/utils/genFilter'
 import { useAuth } from '@/components/auth/AuthProvider'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 
-export default function ChallengeResultsPage() {
+export default function ChallengeResultsRoute() {
+    if (!supabaseConfigured()) return <NeedsSupabase mode='Challenge' />
+    return <ChallengeResultsPage />
+}
+
+function ChallengeResultsPage() {
     const params = useParams()
     const router = useRouter()
     const { isGuest, profile } = useAuth()

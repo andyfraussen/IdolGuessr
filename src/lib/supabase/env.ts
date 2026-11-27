@@ -28,6 +28,7 @@ export function imageHost(): string {
 }
 
 export function supabaseUrl(): string {
+    if (!supabaseConfigured()) return ''
     return fromTestOrProduction(
         process.env.NEXT_PUBLIC_SUPABASE_URL_TEST,
         process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -36,6 +37,7 @@ export function supabaseUrl(): string {
 }
 
 export function supabaseAnonKey(): string {
+    if (!supabaseConfigured()) return ''
     return fromTestOrProduction(
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_TEST,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,

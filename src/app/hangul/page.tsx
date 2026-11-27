@@ -18,10 +18,17 @@ import HangulFilterModal from '@/components/filters/HangulFilterModal'
 import { useHangulGameController } from '@/hooks/useHangulGameController'
 import { getHangulGame, runAwaitingPlayAgain } from '@/lib/player'
 import { getImageUrl } from '@/lib/supabase'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 
 type GroupFilter = 'boy-group' | 'girl-group' | 'both'
 
-export default function HangulPage() {
+export default function HangulRoute() {
+    if (!supabaseConfigured()) return <NeedsSupabase mode='Hangul' />
+    return <HangulPage />
+}
+
+function HangulPage() {
     const router = useRouter()
     const startingRef = useRef(false)
     const [startOpen, setStartOpen] = useState(false)

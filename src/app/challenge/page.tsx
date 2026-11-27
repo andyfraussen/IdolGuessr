@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import posthog from 'posthog-js'
 import ChallengeCreateModal from '@/components/challenge/ChallengeCreateModal'
 import { createChallenge, getOrCreateSessionId } from '@/lib/supabase'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 
 type GroupFilter = 'boy-group' | 'girl-group' | 'both'
 type IdolCount = 5 | 10 | 15 | 20
@@ -14,7 +16,12 @@ const posthogConfigured = Boolean(
     process.env.NEXT_PUBLIC_POSTHOG_HOST
 )
 
-export default function ChallengePage() {
+export default function ChallengeRoute() {
+  if (!supabaseConfigured()) return <NeedsSupabase mode='Challenge' />
+  return <ChallengePage />
+}
+
+function ChallengePage() {
   const router = useRouter()
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)

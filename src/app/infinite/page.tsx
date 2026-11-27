@@ -39,10 +39,17 @@ import {
     DEFAULT_INFINITE_GEN_FILTER,
     isValidInfiniteGenFilter,
 } from '@/utils/genFilter'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
+import { supabaseConfigured } from '@/lib/supabase/env'
 
 type GroupFilter = 'boy-group' | 'girl-group' | 'both'
 
-export default function InfinitePage() {
+export default function InfiniteRoute() {
+    if (!supabaseConfigured()) return <NeedsSupabase mode='Infinite' />
+    return <InfinitePage />
+}
+
+function InfinitePage() {
     const router = useRouter()
     const startingRef = useRef(false)
     const [startOpen, setStartOpen] = useState(false)

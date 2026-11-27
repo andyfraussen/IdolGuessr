@@ -22,6 +22,7 @@ import {
 import { useGameController } from '@/hooks/useGameController'
 import { savePlayerSettings } from '@/lib/player'
 import IndexModal from '@/components/modals/IndexModal'
+import NeedsSupabase from '@/components/game/NeedsSupabase'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import idolNames from '@/data/idolNames.json'
@@ -64,11 +65,14 @@ function creditHref(url?: string | null): string | null {
 
 export default function DailyClient({
     initialDaily,
+    offline = false,
 }: {
     initialDaily: CurrentDaily | null
+    offline?: boolean
 }) {
     const router = useRouter()
     const [showIndexModal, setShowIndexModal] = useState(true)
+    const [blockedMode, setBlockedMode] = useState<string | null>(null)
     const [showInfo, setShowInfo] = useState(false)
     const [showAccount, setShowAccount] = useState(false)
     const [showHistory, setShowHistory] = useState(false)
@@ -400,6 +404,8 @@ export default function DailyClient({
         })
     }
 
+    if (blockedMode) return <NeedsSupabase mode={blockedMode} />
+
     return (
         <div className='fixed inset-0 flex flex-col justify-center overflow-hidden bg-white dark:bg-zinc-950'>
             <div className='mx-auto flex h-full w-full max-w-none flex-col sm:max-h-[1400px] sm:max-w-md sm:rounded-[15px] sm:border-1 sm:border-gray-200 sm:shadow-lg sm:dark:border-zinc-700'>
@@ -684,7 +690,14 @@ export default function DailyClient({
 
             <IndexModal
                 isOpen={showIndexModal}
-                onDaily={() => setShowIndexModal(false)}
+                offline={offline}
+                onDaily={() => {
+                    if (offline) {
+                        setBlockedMode('Daily')
+                        return
+                    }
+                    setShowIndexModal(false)
+                }}
                 onInfinite={() => {
                     router.push('/infinite', { scroll: false })
                 }}
