@@ -73,18 +73,30 @@ revoke all on table public.multiplayer_members from public, anon, authenticated;
 revoke all on table public.multiplayer_state from public, anon, authenticated;
 grant select on table public.multiplayer_state to authenticated;
 
+-- Realtime evaluates this as the subscriber. They have no grant on
+-- multiplayer_members, so the policy cannot read that table itself.
+-- The function runs as its owner and returns only this user's membership.
+create or replace function public.multiplayer_is_member(p_room uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+set row_security = off
+as $$
+    select exists (
+        select 1
+        from public.multiplayer_members member
+        where member.room_id = p_room
+          and member.user_id = auth.uid()
+    );
+$$;
+
 create policy multiplayer_state_member_select
     on public.multiplayer_state
     for select
     to authenticated
-    using (
-        exists (
-            select 1
-            from public.multiplayer_members member
-            where member.room_id = multiplayer_state.room_id
-              and member.user_id = auth.uid()
-        )
-    );
+    using (public.multiplayer_is_member(room_id));
 
 do $$
 begin
@@ -979,6 +991,9 @@ revoke all on function public.multiplayer_maybe_finish(uuid) from public, anon, 
 revoke all on function public.multiplayer_lock(text) from public, anon, authenticated;
 revoke all on function public.multiplayer_require_member(uuid) from public, anon, authenticated;
 revoke all on function public.multiplayer_visual_settings(jsonb) from public, anon, authenticated;
+
+revoke all on function public.multiplayer_is_member(uuid) from public, anon;
+grant execute on function public.multiplayer_is_member(uuid) to authenticated;
 
 revoke all on function public.create_room(text, jsonb) from public, anon, authenticated;
 revoke all on function public.join_room(text) from public, anon, authenticated;
